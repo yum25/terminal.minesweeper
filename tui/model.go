@@ -49,8 +49,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.title = newTitle
 		return m, cmd
 	case views.Sweeper:
-		newSweeper, cmd := m.title.Update(msg)
-		m.title = newSweeper
+		newSweeper, cmd := m.sweeper.Update(msg)
+		m.sweeper = newSweeper
 		return m, cmd
 	}
 
