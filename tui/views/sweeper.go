@@ -22,7 +22,7 @@ func (m SweeperModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m SweeperModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
@@ -46,11 +46,8 @@ func (m SweeperModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m SweeperModel) View() tea.View {
-	var v tea.View
-	v.AltScreen = true
+func (m SweeperModel) View() string {
+	title := titleStyle.Render("terminal.minesweeper.board")
 
-	content := Screen(m.width, m.height).Render("terminal.minesweeper.board")
-	v.SetContent(content)
-	return v
+	return title
 }

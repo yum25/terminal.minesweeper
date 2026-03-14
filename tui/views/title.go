@@ -10,9 +10,6 @@ type Option = string
 type TitleModel struct {
 	options []Option
 	cursor  int
-
-	width  int
-	height int
 }
 
 func MakeTitleModel() TitleModel {
@@ -26,13 +23,8 @@ func (m TitleModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m TitleModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 	switch msg := msg.(type) {
-
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-
 	case tea.KeyPressMsg:
 		switch msg.String() {
 
@@ -49,6 +41,9 @@ func (m TitleModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", "space":
 			switch m.options[m.cursor] {
 			case "play":
+				return m, func() tea.Msg {
+					return Navigate{route: Sweeper}
+				}
 			case "quit":
 				return m, tea.Quit
 			}
@@ -61,10 +56,7 @@ func (m TitleModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m TitleModel) View() tea.View {
-	var v tea.View
-	v.AltScreen = true
-
+func (m TitleModel) View() string {
 	options := make([]string, len(m.options))
 	for i, option := range m.options {
 		style := optionStyle
@@ -82,7 +74,5 @@ func (m TitleModel) View() tea.View {
 		listStyle.Render(list),
 	)
 
-	content := Screen(m.width, m.height).Render(title)
-	v.SetContent(content)
-	return v
+	return title
 }

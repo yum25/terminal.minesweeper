@@ -5,22 +5,18 @@ import (
 	"terminal.minesweeper/tui/views"
 )
 
-type routeState int
-
-const (
-	title routeState = iota
-	sweeper
-)
-
 type model struct {
-	route   routeState
+	route   views.RouteState
 	title   views.TitleModel
 	sweeper views.SweeperModel
+
+	width  int
+	height int
 }
 
 func Model() model {
 	return model{
-		route:   title,
+		route:   views.Title,
 		title:   views.MakeTitleModel(),
 		sweeper: views.MakeSweeperModel(),
 	}
@@ -33,41 +29,50 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-
+	case views.Navigate:
+		m.route = views.Sweeper
+		return m, nil
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
 	case tea.KeyPressMsg:
 		switch msg.String() {
 
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		}
-
 	}
 
 	switch m.route {
-	case title:
+	case views.Title:
 		newTitle, cmd := m.title.Update(msg)
-		m.title = newTitle.(views.TitleModel)
+		m.title = newTitle
 		return m, cmd
-	case sweeper:
+	case views.Sweeper:
 		newSweeper, cmd := m.title.Update(msg)
-		m.title = newSweeper.(views.TitleModel)
+		m.title = newSweeper
 		return m, cmd
 	}
 
-	// Return the updated model to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
 	return m, nil
 }
 
 func (m model) View() tea.View {
+	var v tea.View
+	v.AltScreen = true
+
+	var content string
+
 	switch m.route {
 
-	case title:
-		return m.title.View()
-
-	case sweeper:
-
+	case views.Title:
+		content = m.title.View()
+	case views.Sweeper:
+		content = m.sweeper.View()
 	}
 
-	return tea.NewView("")
+	screen := views.Screen(m.width, m.height).Render(content)
+	v.SetContent(screen)
+
+	return v
 }
