@@ -2,18 +2,28 @@ package tui
 
 import (
 	tea "charm.land/bubbletea/v2"
-	lipgloss "charm.land/lipgloss/v2"
+	"terminal.minesweeper/tui/views"
+)
+
+type routeState int
+
+const (
+	title routeState = iota
+	sweeper
 )
 
 type model struct {
-	cursor int
-
-	width  int
-	height int
+	route   routeState
+	title   views.TitleModel
+	sweeper views.SweeperModel
 }
 
 func Model() model {
-	return model{}
+	return model{
+		route:   title,
+		title:   views.MakeTitleModel(),
+		sweeper: views.MakeSweeperModel(),
+	}
 }
 
 func (m model) Init() tea.Cmd {
@@ -24,30 +34,24 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-	// Is it a key press?
 	case tea.KeyPressMsg:
-
-		// Cool, what was the actual key pressed?
 		switch msg.String() {
 
-		// These keys should exit the program.
 		case "ctrl+c", "q":
 			return m, tea.Quit
-
-		// The "up" and "k" keys move the cursor up
-		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-
-		// The "enter" key and the space bar toggle the selected state
-		// for the item that the cursor is pointing at.
-		case "enter", "space":
-			// send command to change view
 		}
+
+	}
+
+	switch m.route {
+	case title:
+		newTitle, cmd := m.title.Update(msg)
+		m.title = newTitle.(views.TitleModel)
+		return m, cmd
+	case sweeper:
+		newSweeper, cmd := m.title.Update(msg)
+		m.title = newSweeper.(views.TitleModel)
+		return m, cmd
 	}
 
 	// Return the updated model to the Bubble Tea runtime for processing.
@@ -56,17 +60,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() tea.View {
-	var v tea.View
-	v.AltScreen = true
+	switch m.route {
 
-	content := lipgloss.NewStyle().
-		Width(m.width).
-		Height(m.height).
-		AlignHorizontal(lipgloss.Center).
-		AlignVertical(lipgloss.Center).
-		Render("terminal.minesweeper")
+	case title:
+		return m.title.View()
 
-	v.SetContent(content)
+	case sweeper:
 
-	return v
+	}
+
+	return tea.NewView("")
 }
