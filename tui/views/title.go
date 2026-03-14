@@ -51,8 +51,6 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 		}
 	}
 
-	// Return the updated model to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
 	return m, nil
 }
 
