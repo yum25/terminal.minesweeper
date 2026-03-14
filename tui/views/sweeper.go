@@ -10,16 +10,11 @@ type SweeperModel struct {
 	board   *game.Board
 	cursorX int
 	cursorY int
-
-	width  int
-	height int
 }
 
 func MakeSweeperModel() SweeperModel {
 	return SweeperModel{
 		board:   game.GenerateBoard(24, 20, 99),
-		width:   24,
-		height:  20,
 		cursorX: 12,
 		cursorY: 10,
 	}
@@ -33,10 +28,6 @@ func (m SweeperModel) Init() tea.Cmd {
 func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 	switch msg := msg.(type) {
 
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-
 	case tea.KeyPressMsg:
 		switch msg.String() {
 
@@ -46,7 +37,7 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			}
 
 		case "down", "s":
-			if m.cursorY < m.height-1 {
+			if m.cursorY < m.board.GetHeight()-1 {
 				m.cursorY++
 			}
 
@@ -56,9 +47,12 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			}
 
 		case "right", "d":
-			if m.cursorX < m.width-1 {
+			if m.cursorX < m.board.GetWidth()-1 {
 				m.cursorX++
 			}
+
+		case "f":
+			m.board.Flag(m.cursorY, m.cursorX)
 
 		case "enter", "space":
 
@@ -69,20 +63,28 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 }
 
 func (m SweeperModel) View() string {
-	columns := make([]string, m.height)
+	columns := make([]string, m.board.GetHeight())
 
-	for i := range m.height {
-		tiles := make([]string, m.width)
-		for j := range tiles {
-			tiles[j] = tile
+	for y := range m.board.GetHeight() {
+		tiles := make([]string, m.board.GetWidth())
 
-			if j == m.cursorX && i == m.cursorY {
-				tiles[j] = cursor
+		for x := range tiles {
+			style := tileStyle
+			if x == m.cursorX && y == m.cursorY {
+				style = cursor
 			}
+
+			if m.board.IsFlagged(y, x) {
+				tiles[x] = style.Render("⚑")
+			} else {
+				tiles[x] = style.Render("")
+			}
+			tiles[x] = style.Render("")
+
 		}
 		row := lipgloss.JoinHorizontal(lipgloss.Center, tiles...)
 
-		columns[i] = row
+		columns[y] = row
 	}
 
 	board := boardStyle.Render(

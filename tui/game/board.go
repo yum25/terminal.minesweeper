@@ -35,3 +35,26 @@ func GenerateBoard(width int, height int, mine_count int) *Board {
 func (b *Board) Populate() {
 
 }
+
+func (b *Board) GetWidth() int {
+	return b.width
+}
+
+func (b *Board) GetHeight() int {
+	return b.height
+}
+
+func (b *Board) GetTile(x int, y int) *Tile {
+	return &b.tiles[y][x]
+}
+
+func (b *Board) Flag(x int, y int) {
+	tile := b.GetTile(y, x)
+	if !tile.revealed {
+		tile.flagged = !tile.flagged
+	}
+}
+
+func (b *Board) IsFlagged(x int, y int) bool {
+	return b.GetTile(y, x).flagged
+}

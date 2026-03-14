@@ -23,9 +23,7 @@ var (
 			AlignVertical(lipgloss.Center)
 	boardStyle = lipgloss.NewStyle().Padding(0, 0).Border(lipgloss.RoundedBorder())
 
-	tile        = tileStyle.Render(" ")
-	tileFlagged = tileStyle.Foreground(lipgloss.Color("1")).Render("⚑ ")
-	cursor      = tileStyle.Background(lipgloss.Alpha(lipgloss.Color("#FF5733"), 0.5)).Render(" ")
+	cursor = tileStyle.Background(lipgloss.Color("#FF5733"))
 )
 
 func Screen(width int, height int) lipgloss.Style {
