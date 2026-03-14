@@ -16,8 +16,16 @@ var (
 			Background(lipgloss.Color("#9AC085")).
 			Padding(0, 1)
 
-	titleStyle = lipgloss.NewStyle().Padding(1, 1)
 	listStyle  = lipgloss.NewStyle().Padding(1)
+	titleStyle = lipgloss.NewStyle().Padding(0, 1)
+
+	tileStyle = lipgloss.NewStyle().Padding(0, 0).Width(2).Height(1).AlignHorizontal(lipgloss.Center).
+			AlignVertical(lipgloss.Center)
+	boardStyle = lipgloss.NewStyle().Padding(0, 0).Border(lipgloss.RoundedBorder())
+
+	tile        = tileStyle.Render(" ")
+	tileFlagged = tileStyle.Foreground(lipgloss.Color("1")).Render("⚑ ")
+	cursor      = tileStyle.Background(lipgloss.Alpha(lipgloss.Color("#FF5733"), 0.5)).Render(" ")
 )
 
 func Screen(width int, height int) lipgloss.Style {
