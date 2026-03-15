@@ -70,16 +70,21 @@ func (m SweeperModel) View() string {
 
 		for x := range tiles {
 			style := tileStyle
+
+			var tileContent string
+
+			if m.board.IsFlagged(y, x) {
+				tileContent = "⚑"
+				style = style.Foreground(lipgloss.Color("1"))
+			} else {
+				tileContent = ""
+			}
+
 			if x == m.cursorX && y == m.cursorY {
 				style = cursor
 			}
 
-			if m.board.IsFlagged(y, x) {
-				tiles[x] = style.Render("⚑")
-			} else {
-				tiles[x] = style.Render("")
-			}
-			tiles[x] = style.Render("")
+			tiles[x] = style.Render(tileContent)
 
 		}
 		row := lipgloss.JoinHorizontal(lipgloss.Center, tiles...)
