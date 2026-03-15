@@ -1,4 +1,4 @@
-package views
+package nav
 
 type RouteState int
 
@@ -8,6 +8,6 @@ const (
 )
 
 type Navigate struct {
-	route   RouteState
-	payload struct{}
+	Route   RouteState
+	Payload struct{}
 }

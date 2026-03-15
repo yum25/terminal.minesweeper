@@ -6,6 +6,9 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/game"
+	"terminal.minesweeper/tui/config"
+	"terminal.minesweeper/tui/constants"
+	"terminal.minesweeper/tui/styles"
 )
 
 type SweeperModel struct {
@@ -15,7 +18,7 @@ type SweeperModel struct {
 
 func MakeSweeperModel() SweeperModel {
 	return SweeperModel{
-		board:  game.GenerateBoard(game.Width, game.Height, game.MineCount),
+		board:  game.GenerateBoard(config.Width, config.Height, config.MineCount),
 		cursor: game.Coords{X: 12, Y: 10},
 	}
 }
@@ -63,22 +66,22 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 }
 
 func (m SweeperModel) RenderTile(coord game.Coords) string {
-	style := tileStyle
+	style := styles.TileStyle
 	var tileContent string
 
 	if m.board.IsFlagged(coord) {
-		tileContent = flagSymbol
-		style = FlaggedStyle(m.board.IsComplete(), m.board.IsMine(coord))
+		tileContent = constants.FlagSymbol
+		style = styles.FlaggedStyle(m.board.IsComplete(), m.board.IsMine(coord))
 	} else if m.board.IsRevealed(coord) {
 		adjacent := m.board.Adjacent(coord)
 		tileContent = strconv.Itoa(adjacent)
-		style = TileStyle(adjacent)
+		style = styles.RevealedStyle(adjacent)
 	} else {
 	}
 
 	if coord.X == m.cursor.X && coord.Y == m.cursor.Y {
-		tileContent += cursorSymbol
-		style = cursor
+		tileContent += constants.CursorSymbol
+		style = styles.CursorStyle
 	}
 
 	return style.Render(tileContent)
@@ -96,7 +99,7 @@ func (m SweeperModel) View() string {
 		tiles[y] = lipgloss.JoinHorizontal(lipgloss.Center, row...)
 	}
 
-	board := boardStyle.Render(
+	board := styles.BoardStyle.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			tiles...,

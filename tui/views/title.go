@@ -3,6 +3,8 @@ package views
 import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"terminal.minesweeper/tui/nav"
+	"terminal.minesweeper/tui/styles"
 )
 
 type Option = string
@@ -42,7 +44,7 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 			switch m.options[m.cursor] {
 			case "play":
 				return m, func() tea.Msg {
-					return Navigate{route: Sweeper}
+					return nav.Navigate{Route: nav.Sweeper}
 				}
 			case "quit":
 				return m, tea.Quit
@@ -57,9 +59,9 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 func (m TitleModel) View() string {
 	options := make([]string, len(m.options))
 	for i, option := range m.options {
-		style := optionStyle
+		style := styles.OptionStyle
 		if i == m.cursor {
-			style = selectedOptionStyle
+			style = styles.SelectedOptionStyle
 		}
 		options[i] = style.Render(option)
 	}
@@ -67,9 +69,9 @@ func (m TitleModel) View() string {
 	list := lipgloss.JoinVertical(lipgloss.Center, options...)
 
 	title := lipgloss.JoinVertical(lipgloss.Center,
-		iconStyle.Render("☀"),
-		titleStyle.Render("terminal.minesweeper"),
-		listStyle.Render(list),
+		styles.IconStyle.Render("☀"),
+		styles.TitleStyle.Render("terminal.minesweeper"),
+		styles.ListStyle.Render(list),
 	)
 
 	return title

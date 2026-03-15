@@ -2,11 +2,13 @@ package tui
 
 import (
 	tea "charm.land/bubbletea/v2"
+	"terminal.minesweeper/tui/nav"
+	"terminal.minesweeper/tui/styles"
 	"terminal.minesweeper/tui/views"
 )
 
 type model struct {
-	route   views.RouteState
+	route   nav.RouteState
 	title   views.TitleModel
 	sweeper views.SweeperModel
 
@@ -16,7 +18,7 @@ type model struct {
 
 func Model() model {
 	return model{
-		route:   views.Title,
+		route:   nav.Title,
 		title:   views.MakeTitleModel(),
 		sweeper: views.MakeSweeperModel(),
 	}
@@ -29,8 +31,8 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case views.Navigate:
-		m.route = views.Sweeper
+	case nav.Navigate:
+		m.route = nav.Sweeper
 		return m, nil
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -44,11 +46,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch m.route {
-	case views.Title:
+	case nav.Title:
 		newTitle, cmd := m.title.Update(msg)
 		m.title = newTitle
 		return m, cmd
-	case views.Sweeper:
+	case nav.Sweeper:
 		newSweeper, cmd := m.sweeper.Update(msg)
 		m.sweeper = newSweeper
 		return m, cmd
@@ -65,13 +67,13 @@ func (m model) View() tea.View {
 
 	switch m.route {
 
-	case views.Title:
+	case nav.Title:
 		content = m.title.View()
-	case views.Sweeper:
+	case nav.Sweeper:
 		content = m.sweeper.View()
 	}
 
-	screen := views.Screen(m.width, m.height).Render(content)
+	screen := styles.Screen(m.width, m.height).Render(content)
 	v.SetContent(screen)
 
 	return v
