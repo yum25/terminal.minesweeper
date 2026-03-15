@@ -3,6 +3,7 @@ package views
 import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"terminal.minesweeper/tui/constants"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
 )
@@ -69,7 +70,7 @@ func (m TitleModel) View() string {
 	list := lipgloss.JoinVertical(lipgloss.Center, options...)
 
 	title := lipgloss.JoinVertical(lipgloss.Center,
-		styles.IconStyle.Render("☀"),
+		styles.IconStyle.Render(constants.MineSymbol),
 		styles.TitleStyle.Render("terminal.minesweeper"),
 		styles.ListStyle.Render(list),
 	)

@@ -6,6 +6,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/game"
+	state "terminal.minesweeper/shared"
 	"terminal.minesweeper/tui/config"
 	"terminal.minesweeper/tui/constants"
 	"terminal.minesweeper/tui/styles"
@@ -19,7 +20,7 @@ type SweeperModel struct {
 func MakeSweeperModel() SweeperModel {
 	return SweeperModel{
 		board:  game.GenerateBoard(config.Width, config.Height, config.MineCount),
-		cursor: game.Coords{X: 12, Y: 10},
+		cursor: game.Coords{X: config.Width / 2, Y: config.Width / 2},
 	}
 }
 
@@ -55,10 +56,15 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			}
 
 		case "f":
-			m.board.Flag(m.cursor)
+			switch m.board.GetTileState(m.cursor) {
+			case state.TileFlagged:
+				m.board.SetTileState(m.cursor, state.TileClosed)
+			case state.TileClosed:
+				m.board.SetTileState(m.cursor, state.TileFlagged)
+			}
 
 		case "enter", "space":
-			m.board.Reveal(m.cursor)
+			m.board.SetTileState(m.cursor, state.TileOpen)
 		}
 	}
 
@@ -69,14 +75,24 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 	style := styles.TileStyle
 	var tileContent string
 
-	if m.board.IsFlagged(coord) {
+	switch m.board.GetTileState(coord) {
+	// General states
+	case state.TileFlagged:
 		tileContent = constants.FlagSymbol
-		style = styles.FlaggedStyle(m.board.IsComplete(), m.board.IsMine(coord))
-	} else if m.board.IsRevealed(coord) {
+		style = styles.FlaggedStyle
+	case state.TileOpen:
 		adjacent := m.board.Adjacent(coord)
 		tileContent = strconv.Itoa(adjacent)
 		style = styles.RevealedStyle(adjacent)
-	} else {
+	case state.TileClosed:
+		// adjacent := m.board.Adjacent(coord)
+		// tileContent = strconv.Itoa(adjacent)
+		// style = styles.RevealedStyle(adjacent)
+
+	// Post game states
+	case state.TileFlaggedWrong:
+	case state.MineHit:
+	case state.MineRevealed:
 	}
 
 	if coord.X == m.cursor.X && coord.Y == m.cursor.Y {

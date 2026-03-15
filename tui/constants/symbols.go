@@ -5,5 +5,5 @@ const (
 	FlagSymbol      = "⚑"
 	FalseFlagSymbol = ""
 	CursorSymbol    = "<"
-	MineSymbol      = ""
+	MineSymbol      = "☀"
 )

@@ -1,13 +1,18 @@
 package game
 
+import (
+	"math/rand"
+
+	state "terminal.minesweeper/shared"
+)
+
 type Coords struct {
 	X int
 	Y int
 }
 
 type Tile struct {
-	revealed bool
-	flagged  bool
+	state    state.TileState
 	mine     bool
 	adjacent int
 }
@@ -43,21 +48,36 @@ func GenerateBoard(width int, height int, mine_count int) *Board {
 
 func (b *Board) Populate(coord Coords) {
 	// Preclear starting tiles
-	b.GetTile(coord).adjacent = 0
-	for y := coord.Y - 1; y <= coord.Y+1; y++ {
-		for x := coord.X - 1; y <= coord.X+1; x++ {
-			if tile := b.GetTile(Coords{X: x, Y: y}); tile != nil {
-				tile.revealed = true
-			}
-		}
+	start := b.GetTile(coord)
+	start.state = state.TileOpen
+	start.adjacent = 0
+
+	neighbors := b.GetNeighbors(coord)
+
+	for _, n := range neighbors {
+		n.state = state.TileOpen
 	}
+
 	// Randomly place all mines
 	local_count := 0
 	for {
 		if local_count == b.mine_count {
 			break
 		}
-		// x, y := rand.Intn(b.width), rand.Intn(int(b.height))
+		x, y := rand.Intn(b.width), rand.Intn(int(b.height))
+
+		if t := b.GetTile(Coords{X: x, Y: y}); t != nil &&
+			t.state != state.TileOpen && !t.mine {
+			t.state = state.TileClosed
+			t.mine = true
+
+			adjacents := b.GetNeighbors(coord)
+			for _, n := range adjacents {
+				n.adjacent++
+			}
+
+			local_count++
+		}
 	}
 
 	// Game has been started
@@ -79,33 +99,46 @@ func (b *Board) GetTile(coord Coords) *Tile {
 	return &b.tiles[coord.Y][coord.X]
 }
 
-func (b *Board) Flag(coord Coords) {
-	tile := b.GetTile(coord)
-	if !tile.revealed {
-		tile.flagged = !tile.flagged
+func (b *Board) GetNeighbors(coord Coords) []*Tile {
+	neighbors := []*Tile{}
+	for y := coord.Y - 1; y <= coord.Y+1; y++ {
+		for x := coord.X - 1; y <= coord.X+1; x++ {
+			if tile := b.GetTile(Coords{X: x, Y: y}); tile != nil &&
+				y != coord.Y && x != coord.X {
+				neighbors = append(neighbors, tile)
+			}
+		}
+	}
+
+	return neighbors
+}
+
+func (b *Board) GetTileState(coord Coords) state.TileState {
+	return b.GetTile(coord).state
+}
+
+func (b *Board) SetTileState(coord Coords, tileState state.TileState) {
+	switch tileState {
+	case state.TileOpen:
+		b.OpenTile(coord)
+	default:
+		b.GetTile(coord).state = tileState
 	}
 }
 
-func (b *Board) IsFlagged(coord Coords) bool {
-	return b.GetTile(coord).flagged
-}
-
-func (b *Board) Reveal(coord Coords) {
+func (b *Board) OpenTile(coord Coords) {
 	if !b.started {
 		b.Populate(coord)
 	}
-}
 
-func (b *Board) IsRevealed(coord Coords) bool {
-	return b.GetTile(coord).revealed
+	// neighbors := b.GetNeighbors(coord)
+	// for _, n := range neighbors {
+
+	// }
 }
 
 func (b *Board) Adjacent(coord Coords) int {
 	return b.GetTile(coord).adjacent
-}
-
-func (b *Board) IsMine(coord Coords) bool {
-	return b.GetTile(coord).mine
 }
 
 func (b *Board) IsComplete() bool {

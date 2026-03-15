@@ -19,11 +19,12 @@ var (
 	ListStyle  = lipgloss.NewStyle().Padding(1)
 	TitleStyle = lipgloss.NewStyle().Padding(1, 1, 0)
 
-	TileStyle = lipgloss.NewStyle().Width(2).Height(1).AlignHorizontal(lipgloss.Center).
-			AlignVertical(lipgloss.Center)
 	BoardStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder())
 
-	CursorStyle = TileStyle.Foreground(lipgloss.Color("0")).Background(CursorColor)
+	TileStyle = lipgloss.NewStyle().Width(2).Height(1).AlignHorizontal(lipgloss.Center).
+			AlignVertical(lipgloss.Center)
+	FlaggedStyle = TileStyle.Foreground(Black).Background(Lightgray)
+	CursorStyle  = TileStyle.Foreground(lipgloss.Color("0")).Background(CursorColor)
 )
 
 // Dynamic Styles
@@ -33,14 +34,6 @@ func Screen(width int, height int) lipgloss.Style {
 		Height(height).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center)
-}
-
-func FlaggedStyle(complete bool, mine bool) lipgloss.Style {
-	if complete && !mine {
-		// Return style for false flagged
-		return TileStyle
-	}
-	return TileStyle.Foreground(Black).Background(Lightgray)
 }
 
 func RevealedStyle(adjacent int) lipgloss.Style {
