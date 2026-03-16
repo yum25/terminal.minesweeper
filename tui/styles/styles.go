@@ -23,7 +23,7 @@ var (
 
 	TileStyle = lipgloss.NewStyle().Width(2).Height(1).AlignHorizontal(lipgloss.Center).
 			AlignVertical(lipgloss.Center)
-	FlaggedStyle = TileStyle.Foreground(Black).Background(Lightgray)
+	FlaggedStyle = TileStyle.Foreground(Lightgray).Background(Black)
 	CursorStyle  = TileStyle.Foreground(lipgloss.Color("0")).Background(CursorColor)
 )
 

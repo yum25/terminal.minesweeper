@@ -56,15 +56,10 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			}
 
 		case "f":
-			switch m.board.GetTileState(m.cursor) {
-			case state.TileFlagged:
-				m.board.SetTileState(m.cursor, state.TileClosed)
-			case state.TileClosed:
-				m.board.SetTileState(m.cursor, state.TileFlagged)
-			}
+			m.board.Flag(m.cursor)
 
 		case "enter", "space":
-			m.board.SetTileState(m.cursor, state.TileOpen)
+			m.board.OpenTile(m.cursor)
 		}
 	}
 

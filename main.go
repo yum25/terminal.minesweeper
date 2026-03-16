@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	tea "charm.land/bubbletea/v2"
 	"terminal.minesweeper/tui"
 )
 
-const dev = false
+const dev = true
 
 func main() {
 	if dev {
-		f, err := os.OpenFile("debug.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		f, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
-			panic(err)
+			fmt.Println("fatal:", err)
+			os.Exit(1)
 		}
 		defer f.Close()
-		log.SetOutput(f)
+
 	}
 
 	p := tea.NewProgram(tui.Model())

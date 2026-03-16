@@ -33,9 +33,6 @@ func GenerateBoard(width int, height int, mine_count int) *Board {
 	tiles := make([][]Tile, height)
 	for i := range tiles {
 		tiles[i] = make([]Tile, width)
-		// for j := range tiles[i] {
-		// 	tiles[i][j].adjacent = rand.Intn(9)
-		// }
 	}
 
 	return &Board{
@@ -54,34 +51,27 @@ func (b *Board) Populate(coord Coords) {
 
 	neighbors := b.GetNeighbors(coord)
 
-	for _, n := range neighbors {
-		n.state = state.TileOpen
+	for _, ncoords := range neighbors {
+		b.SetTileState(ncoords, state.TileOpen)
 	}
 
 	// Randomly place all mines
 	local_count := 0
-	for {
-		if local_count == b.mine_count {
-			break
-		}
+	for local_count < b.mine_count {
 		x, y := rand.Intn(b.width), rand.Intn(int(b.height))
 
 		if t := b.GetTile(Coords{X: x, Y: y}); t != nil &&
 			t.state != state.TileOpen && !t.mine {
-			t.state = state.TileClosed
 			t.mine = true
 
-			adjacents := b.GetNeighbors(coord)
-			for _, n := range adjacents {
-				n.adjacent++
+			adjacents := b.GetNeighbors(Coords{X: x, Y: y})
+			for _, ncoords := range adjacents {
+				b.GetTile(ncoords).adjacent++
 			}
 
 			local_count++
 		}
 	}
-
-	// Game has been started
-	b.started = true
 }
 
 func (b *Board) GetWidth() int {
@@ -93,19 +83,18 @@ func (b *Board) GetHeight() int {
 }
 
 func (b *Board) GetTile(coord Coords) *Tile {
-	if coord.X < 0 || coord.X >= b.width || coord.Y < 0 || coord.Y > b.height {
+	if coord.X < 0 || coord.X >= b.width || coord.Y < 0 || coord.Y >= b.height {
 		return nil
 	}
 	return &b.tiles[coord.Y][coord.X]
 }
 
-func (b *Board) GetNeighbors(coord Coords) []*Tile {
-	neighbors := []*Tile{}
+func (b *Board) GetNeighbors(coord Coords) []Coords {
+	neighbors := []Coords{}
 	for y := coord.Y - 1; y <= coord.Y+1; y++ {
-		for x := coord.X - 1; y <= coord.X+1; x++ {
-			if tile := b.GetTile(Coords{X: x, Y: y}); tile != nil &&
-				y != coord.Y && x != coord.X {
-				neighbors = append(neighbors, tile)
+		for x := coord.X - 1; x <= coord.X+1; x++ {
+			if b.GetTile(Coords{X: x, Y: y}) != nil {
+				neighbors = append(neighbors, Coords{X: x, Y: y})
 			}
 		}
 	}
@@ -118,27 +107,65 @@ func (b *Board) GetTileState(coord Coords) state.TileState {
 }
 
 func (b *Board) SetTileState(coord Coords, tileState state.TileState) {
-	switch tileState {
-	case state.TileOpen:
-		b.OpenTile(coord)
-	default:
-		b.GetTile(coord).state = tileState
-	}
+	b.GetTile(coord).state = tileState
 }
 
-func (b *Board) OpenTile(coord Coords) {
-	if !b.started {
-		b.Populate(coord)
-	}
-
-	// neighbors := b.GetNeighbors(coord)
-	// for _, n := range neighbors {
-
-	// }
+func (b *Board) IsMine(coord Coords) bool {
+	return b.GetTile(coord).mine
 }
 
 func (b *Board) Adjacent(coord Coords) int {
 	return b.GetTile(coord).adjacent
+}
+
+func (b *Board) Flag(coord Coords) {
+	switch b.GetTileState(coord) {
+	case state.TileFlagged:
+		b.SetTileState(coord, state.TileClosed)
+	case state.TileClosed:
+		b.SetTileState(coord, state.TileFlagged)
+	}
+}
+
+func (b *Board) OpenTile(coord Coords) {
+	if b.GetTileState(coord) == state.TileFlagged {
+		return
+	}
+
+	if b.IsMine(coord) {
+		b.SetTileState(coord, state.MineHit)
+		return
+	}
+
+	if !b.started {
+		b.Populate(coord)
+
+		// Game has been started
+		b.started = true
+
+		for _, ncoords := range b.GetNeighbors(coord) {
+			b.OpenSafeTile(ncoords)
+		}
+	} else {
+		b.OpenSafeTile(coord)
+	}
+
+}
+
+func (b *Board) OpenSafeTile(coord Coords) {
+	if t := b.GetTileState(coord); t == state.TileOpen || t == state.TileFlagged {
+		return
+	}
+
+	b.SetTileState(coord, state.TileOpen)
+	if b.Adjacent(coord) > 0 {
+		return
+	}
+
+	for _, ncoords := range b.GetNeighbors(coord) {
+		b.OpenSafeTile(ncoords)
+	}
+
 }
 
 func (b *Board) IsComplete() bool {

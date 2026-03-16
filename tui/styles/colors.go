@@ -26,7 +26,7 @@ var (
 // Color Maps
 var (
 	tileColorMap = map[int]color.Color{
-		0: Black,
+		0: Lightgray,
 		1: Blue,
 		2: Green,
 		3: Lightred,
@@ -38,7 +38,7 @@ var (
 	}
 
 	tileTextColorMap = map[int]color.Color{
-		0: Black,
+		0: Lightgray,
 		1: Black,
 		2: Black,
 		3: Black,
