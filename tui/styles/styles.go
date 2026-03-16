@@ -26,6 +26,7 @@ var (
 	FlaggedStyle = TileStyle.Foreground(Lightgray).Background(Black)
 	CursorStyle  = TileStyle.Foreground(lipgloss.Color("0")).Background(CursorColor)
 	MineStyle    = TileStyle.Background(MineColor)
+	MineHitStyle = TileStyle.Foreground(MineColor)
 )
 
 // Dynamic Styles

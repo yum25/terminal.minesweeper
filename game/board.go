@@ -131,14 +131,12 @@ func (b *Board) OpenTile(coord Coords) {
 	if b.GetTileState(coord) == state.MineClosed {
 		b.SetTileState(coord, state.MineHit)
 		b.defeated = true
-		b.complete = true
+		b.Complete()
 		return
 	}
 
 	if !b.started {
 		b.Populate(coord)
-
-		// Game has been started
 		b.started = true
 
 		for _, ncoords := range b.GetNeighbors(coord) {
@@ -159,15 +157,50 @@ func (b *Board) OpenSafeTile(coord Coords) {
 	if t := b.GetTileState(coord); t == state.TileOpen || t == state.TileFlagged {
 		return
 	}
-
 	b.SetTileState(coord, state.TileOpen)
 	if b.Adjacent(coord) > 0 {
+		if b.IsBoardSolved() {
+			b.Complete()
+		}
 		return
 	}
 
 	for _, ncoords := range b.GetNeighbors(coord) {
 		b.OpenSafeTile(ncoords)
 	}
+
+	if b.IsBoardSolved() {
+		b.Complete()
+	}
+}
+
+func (b *Board) IsBoardSolved() bool {
+	for _, row := range b.tiles {
+		for _, tile := range row {
+			if tile.state == state.TileClosed {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func (b *Board) RevealBoard() {
+	for y := range b.GetHeight() {
+		for x := range b.GetWidth() {
+			switch b.GetTileState(Coords{X: x, Y: y}) {
+			case state.TileClosed:
+				b.SetTileState(Coords{X: x, Y: y}, state.TileOpen)
+			case state.MineClosed:
+				b.SetTileState(Coords{X: x, Y: y}, state.MineRevealed)
+			}
+		}
+	}
+}
+
+func (b *Board) Complete() {
+	b.RevealBoard()
+	b.complete = true
 }
 
 func (b *Board) IsComplete() bool {

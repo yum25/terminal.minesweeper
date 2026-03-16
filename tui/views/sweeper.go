@@ -30,36 +30,59 @@ func (m SweeperModel) Init() tea.Cmd {
 }
 
 func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
-	switch msg := msg.(type) {
+	if m.board.IsComplete() {
+		switch msg := msg.(type) {
+		case tea.KeyPressMsg:
+			switch msg.String() {
+			case "up", "w":
+				if m.cursor.Y > 0 {
+					m.cursor.Y--
+				}
+			case "down", "s":
+				if m.cursor.Y < m.board.GetHeight()-1 {
+					m.cursor.Y++
+				}
+			case "left", "a":
+				if m.cursor.X > 0 {
+					m.cursor.X--
+				}
+			case "right", "d":
+				if m.cursor.X < m.board.GetWidth()-1 {
+					m.cursor.X++
+				}
+			case "r":
+				m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
 
+			}
+		}
+		return m, nil
+	}
+
+	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
-
 		case "up", "w":
 			if m.cursor.Y > 0 {
 				m.cursor.Y--
 			}
-
 		case "down", "s":
 			if m.cursor.Y < m.board.GetHeight()-1 {
 				m.cursor.Y++
 			}
-
 		case "left", "a":
 			if m.cursor.X > 0 {
 				m.cursor.X--
 			}
-
 		case "right", "d":
 			if m.cursor.X < m.board.GetWidth()-1 {
 				m.cursor.X++
 			}
-
 		case "f":
 			m.board.Flag(m.cursor)
-
 		case "enter", "space":
 			m.board.OpenTile(m.cursor)
+		case "r":
+			m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
 		}
 	}
 
@@ -71,18 +94,23 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 	var tileContent string
 
 	switch m.board.GetTileState(coord) {
-	// General states
 	case state.TileFlagged:
 		tileContent = constants.FlagSymbol
 		style = styles.FlaggedStyle
 	case state.TileFlaggedWrong:
 		tileContent = constants.FlagSymbol
 		style = styles.FlaggedStyle
+		if m.board.IsComplete() {
+			style = styles.MineStyle
+		}
 	case state.TileOpen:
 		adjacent := m.board.Adjacent(coord)
 		tileContent = strconv.Itoa(adjacent)
 		style = styles.RevealedStyle(adjacent)
 	case state.MineHit:
+		tileContent = constants.MineHitSymbol
+		style = styles.MineHitStyle
+	case state.MineRevealed:
 		tileContent = constants.MineSymbol
 		style = styles.MineStyle
 	}
