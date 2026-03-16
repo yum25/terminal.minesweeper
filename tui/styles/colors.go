@@ -9,7 +9,7 @@ import (
 // Colors
 var (
 	CursorColor = lipgloss.Color("#f8957f")
-	MineColor   = lipgloss.Color("#ff7252")
+	MineColor   = lipgloss.Color("#fd4343")
 
 	Blue      = lipgloss.Color("#79A1C3")
 	Green     = lipgloss.Color("#9AC085")

@@ -20,7 +20,7 @@ type SweeperModel struct {
 func MakeSweeperModel() SweeperModel {
 	return SweeperModel{
 		board:  game.GenerateBoard(config.Width, config.Height, config.MineCount),
-		cursor: game.Coords{X: config.Width / 2, Y: config.Width / 2},
+		cursor: game.Coords{X: config.Width / 2, Y: config.Height / 2},
 	}
 }
 
@@ -79,15 +79,13 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 		adjacent := m.board.Adjacent(coord)
 		tileContent = strconv.Itoa(adjacent)
 		style = styles.RevealedStyle(adjacent)
+	case state.MineHit:
+		tileContent = constants.MineSymbol
+		style = styles.MineStyle
 	case state.TileClosed:
 		// adjacent := m.board.Adjacent(coord)
 		// tileContent = strconv.Itoa(adjacent)
 		// style = styles.RevealedStyle(adjacent)
-
-	// Post game states
-	case state.TileFlaggedWrong:
-	case state.MineHit:
-	case state.MineRevealed:
 	}
 
 	if coord.X == m.cursor.X && coord.Y == m.cursor.Y {

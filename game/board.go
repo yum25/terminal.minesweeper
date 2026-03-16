@@ -13,7 +13,6 @@ type Coords struct {
 
 type Tile struct {
 	state    state.TileState
-	mine     bool
 	adjacent int
 }
 
@@ -49,9 +48,7 @@ func (b *Board) Populate(coord Coords) {
 	start.state = state.TileOpen
 	start.adjacent = 0
 
-	neighbors := b.GetNeighbors(coord)
-
-	for _, ncoords := range neighbors {
+	for _, ncoords := range b.GetNeighbors(coord) {
 		b.SetTileState(ncoords, state.TileOpen)
 	}
 
@@ -61,11 +58,10 @@ func (b *Board) Populate(coord Coords) {
 		x, y := rand.Intn(b.width), rand.Intn(int(b.height))
 
 		if t := b.GetTile(Coords{X: x, Y: y}); t != nil &&
-			t.state != state.TileOpen && !t.mine {
-			t.mine = true
+			t.state != state.TileOpen && t.state != state.MineClosed {
+			t.state = state.MineClosed
 
-			adjacents := b.GetNeighbors(Coords{X: x, Y: y})
-			for _, ncoords := range adjacents {
+			for _, ncoords := range b.GetNeighbors(Coords{X: x, Y: y}) {
 				b.GetTile(ncoords).adjacent++
 			}
 
@@ -110,10 +106,6 @@ func (b *Board) SetTileState(coord Coords, tileState state.TileState) {
 	b.GetTile(coord).state = tileState
 }
 
-func (b *Board) IsMine(coord Coords) bool {
-	return b.GetTile(coord).mine
-}
-
 func (b *Board) Adjacent(coord Coords) int {
 	return b.GetTile(coord).adjacent
 }
@@ -132,8 +124,10 @@ func (b *Board) OpenTile(coord Coords) {
 		return
 	}
 
-	if b.IsMine(coord) {
+	if b.GetTileState(coord) == state.MineClosed {
 		b.SetTileState(coord, state.MineHit)
+		b.defeated = true
+		b.complete = true
 		return
 	}
 

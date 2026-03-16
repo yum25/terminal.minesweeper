@@ -25,6 +25,7 @@ var (
 			AlignVertical(lipgloss.Center)
 	FlaggedStyle = TileStyle.Foreground(Lightgray).Background(Black)
 	CursorStyle  = TileStyle.Foreground(lipgloss.Color("0")).Background(CursorColor)
+	MineStyle    = TileStyle.Background(MineColor)
 )
 
 // Dynamic Styles

@@ -7,6 +7,7 @@ const (
 	TileOpen
 	TileFlagged
 	TileFlaggedWrong
+	MineClosed
 	MineHit
 	MineRevealed
 )
