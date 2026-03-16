@@ -30,34 +30,6 @@ func (m SweeperModel) Init() tea.Cmd {
 }
 
 func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
-	if m.board.IsComplete() {
-		switch msg := msg.(type) {
-		case tea.KeyPressMsg:
-			switch msg.String() {
-			case "up", "w":
-				if m.cursor.Y > 0 {
-					m.cursor.Y--
-				}
-			case "down", "s":
-				if m.cursor.Y < m.board.GetHeight()-1 {
-					m.cursor.Y++
-				}
-			case "left", "a":
-				if m.cursor.X > 0 {
-					m.cursor.X--
-				}
-			case "right", "d":
-				if m.cursor.X < m.board.GetWidth()-1 {
-					m.cursor.X++
-				}
-			case "r":
-				m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
-
-			}
-		}
-		return m, nil
-	}
-
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -77,12 +49,16 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			if m.cursor.X < m.board.GetWidth()-1 {
 				m.cursor.X++
 			}
-		case "f":
-			m.board.Flag(m.cursor)
-		case "enter", "space":
-			m.board.OpenTile(m.cursor)
 		case "r":
 			m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
+		}
+		if !m.board.IsComplete() {
+			switch msg.String() {
+			case "f":
+				m.board.Flag(m.cursor)
+			case "enter", "space":
+				m.board.OpenTile(m.cursor)
+			}
 		}
 	}
 
