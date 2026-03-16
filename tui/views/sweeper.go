@@ -75,6 +75,9 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 	case state.TileFlagged:
 		tileContent = constants.FlagSymbol
 		style = styles.FlaggedStyle
+	case state.TileFlaggedWrong:
+		tileContent = constants.FlagSymbol
+		style = styles.FlaggedStyle
 	case state.TileOpen:
 		adjacent := m.board.Adjacent(coord)
 		tileContent = strconv.Itoa(adjacent)
@@ -82,10 +85,6 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 	case state.MineHit:
 		tileContent = constants.MineSymbol
 		style = styles.MineStyle
-	case state.TileClosed:
-		// adjacent := m.board.Adjacent(coord)
-		// tileContent = strconv.Itoa(adjacent)
-		// style = styles.RevealedStyle(adjacent)
 	}
 
 	if coord.X == m.cursor.X && coord.Y == m.cursor.Y {

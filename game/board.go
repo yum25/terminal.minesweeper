@@ -113,9 +113,13 @@ func (b *Board) Adjacent(coord Coords) int {
 func (b *Board) Flag(coord Coords) {
 	switch b.GetTileState(coord) {
 	case state.TileFlagged:
-		b.SetTileState(coord, state.TileClosed)
-	case state.TileClosed:
+		b.SetTileState(coord, state.MineClosed)
+	case state.MineClosed:
 		b.SetTileState(coord, state.TileFlagged)
+	case state.TileClosed:
+		b.SetTileState(coord, state.TileFlaggedWrong)
+	case state.TileFlaggedWrong:
+		b.SetTileState(coord, state.TileClosed)
 	}
 }
 
@@ -138,7 +142,12 @@ func (b *Board) OpenTile(coord Coords) {
 		b.started = true
 
 		for _, ncoords := range b.GetNeighbors(coord) {
-			b.OpenSafeTile(ncoords)
+			if b.Adjacent(ncoords) > 0 {
+				continue
+			}
+			for _, acoords := range b.GetNeighbors(ncoords) {
+				b.OpenSafeTile(acoords)
+			}
 		}
 	} else {
 		b.OpenSafeTile(coord)
@@ -159,7 +168,6 @@ func (b *Board) OpenSafeTile(coord Coords) {
 	for _, ncoords := range b.GetNeighbors(coord) {
 		b.OpenSafeTile(ncoords)
 	}
-
 }
 
 func (b *Board) IsComplete() bool {
