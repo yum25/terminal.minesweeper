@@ -16,7 +16,7 @@ var (
 	Lightred  = lipgloss.Color("#fc7f90")
 	Magenta   = lipgloss.Color("#BB8CAF")
 	Yellow    = lipgloss.Color("#F1CB81")
-	Cyan      = lipgloss.Color("#77C1D2")
+	Cyan      = lipgloss.Color("#77c4d2")
 	Black     = lipgloss.Color("#394252")
 	Gray      = lipgloss.Color("#878787")
 	Lightgray = lipgloss.Color("#cdcdcd")
