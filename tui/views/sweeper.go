@@ -59,6 +59,9 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			case "enter", "space":
 				m.board.OpenTile(m.cursor)
 			}
+
+			// After every board update, check for completion
+			m.board.CheckIsComplete()
 		}
 	}
 

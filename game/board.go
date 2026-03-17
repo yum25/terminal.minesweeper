@@ -163,7 +163,6 @@ func (b *Board) OpenTile(coord Coords) {
 	if b.GetTileState(coord) == state.MineClosed {
 		b.SetTileState(coord, state.MineHit)
 		b.defeated = true
-		b.Complete()
 		return
 	}
 
@@ -191,18 +190,11 @@ func (b *Board) OpenSafeTile(coord Coords) {
 	}
 	b.SetTileState(coord, state.TileOpen)
 	if b.Adjacent(coord) > 0 {
-		if b.IsBoardSolved() {
-			b.Complete()
-		}
 		return
 	}
 
 	for _, ncoords := range b.GetNeighbors(coord) {
 		b.OpenSafeTile(ncoords)
-	}
-
-	if b.IsBoardSolved() {
-		b.Complete()
 	}
 }
 
@@ -230,9 +222,11 @@ func (b *Board) RevealBoard() {
 	}
 }
 
-func (b *Board) Complete() {
-	b.RevealBoard()
-	b.complete = true
+func (b *Board) CheckIsComplete() {
+	if b.IsBoardSolved() || b.defeated {
+		b.RevealBoard()
+		b.complete = true
+	}
 }
 
 func (b *Board) IsComplete() bool {
