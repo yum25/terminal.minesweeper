@@ -1,6 +1,8 @@
 package game
 
 import (
+	"fmt"
+	"log"
 	"math/rand"
 
 	state "terminal.minesweeper/shared"
@@ -28,6 +30,14 @@ type Board struct {
 	mine_count int
 }
 
+type TileOutOfBoundsError struct {
+	coord Coords
+}
+
+func (e *TileOutOfBoundsError) Error() string {
+	return fmt.Sprintf("Attempted to access tile out of bounds at Coords{X: %d, Y: %d}", e.coord.X, e.coord.Y)
+}
+
 func GenerateBoard(width int, height int, mine_count int) *Board {
 	tiles := make([][]Tile, height)
 	for i := range tiles {
@@ -44,9 +54,8 @@ func GenerateBoard(width int, height int, mine_count int) *Board {
 
 func (b *Board) Populate(coord Coords) {
 	// Preclear starting tiles
-	start := b.GetTile(coord)
-	start.state = state.TileOpen
-	start.adjacent = 0
+	b.SetTileState(coord, state.TileOpen)
+	b.SetAdjacent(coord, 0)
 
 	for _, ncoords := range b.GetNeighbors(coord) {
 		b.SetTileState(ncoords, state.TileOpen)
@@ -55,14 +64,14 @@ func (b *Board) Populate(coord Coords) {
 	// Randomly place all mines
 	local_count := 0
 	for local_count < b.mine_count {
-		x, y := rand.Intn(b.width), rand.Intn(int(b.height))
+		x, y := rand.Intn(b.width), rand.Intn(b.height)
 
-		if t := b.GetTile(Coords{X: x, Y: y}); t != nil &&
-			t.state != state.TileOpen && t.state != state.MineClosed {
-			t.state = state.MineClosed
+		if s := b.GetTileState(Coords{X: x, Y: y}); s != state.TileOpen &&
+			s != state.MineClosed {
+			b.SetTileState(Coords{X: x, Y: y}, state.MineClosed)
 
 			for _, ncoords := range b.GetNeighbors(Coords{X: x, Y: y}) {
-				b.GetTile(ncoords).adjacent++
+				b.SetAdjacent(ncoords, b.Adjacent(ncoords)+1)
 			}
 
 			local_count++
@@ -78,18 +87,18 @@ func (b *Board) GetHeight() int {
 	return b.height
 }
 
-func (b *Board) GetTile(coord Coords) *Tile {
+func (b *Board) GetTile(coord Coords) (*Tile, *TileOutOfBoundsError) {
 	if coord.X < 0 || coord.X >= b.width || coord.Y < 0 || coord.Y >= b.height {
-		return nil
+		return nil, &TileOutOfBoundsError{}
 	}
-	return &b.tiles[coord.Y][coord.X]
+	return &b.tiles[coord.Y][coord.X], nil
 }
 
 func (b *Board) GetNeighbors(coord Coords) []Coords {
 	neighbors := []Coords{}
 	for y := coord.Y - 1; y <= coord.Y+1; y++ {
 		for x := coord.X - 1; x <= coord.X+1; x++ {
-			if b.GetTile(Coords{X: x, Y: y}) != nil {
+			if _, err := b.GetTile(Coords{X: x, Y: y}); err == nil {
 				neighbors = append(neighbors, Coords{X: x, Y: y})
 			}
 		}
@@ -99,15 +108,38 @@ func (b *Board) GetNeighbors(coord Coords) []Coords {
 }
 
 func (b *Board) GetTileState(coord Coords) state.TileState {
-	return b.GetTile(coord).state
+	t, err := b.GetTile(coord)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	return t.state
 }
 
 func (b *Board) SetTileState(coord Coords, tileState state.TileState) {
-	b.GetTile(coord).state = tileState
+	t, err := b.GetTile(coord)
+	if err != nil {
+		log.Printf("WARNING: Board.SetTileState produced error %s", err.Error())
+		return
+	}
+
+	t.state = tileState
 }
 
 func (b *Board) Adjacent(coord Coords) int {
-	return b.GetTile(coord).adjacent
+	t, err := b.GetTile(coord)
+	if err != nil {
+		log.Printf("WARNING: Board.Adjacent produced error %s", err.Error())
+		return 0
+	}
+	return t.adjacent
+}
+
+func (b *Board) SetAdjacent(coord Coords, count int) {
+	t, err := b.GetTile(coord)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	t.adjacent = count
 }
 
 func (b *Board) Flag(coord Coords) {
