@@ -8,16 +8,22 @@ import (
 	"terminal.minesweeper/tui/styles"
 )
 
-type Option = string
+type route = string
+
+const (
+	play     route = "play"
+	settings route = "settings"
+	quit     route = "quit"
+)
 
 type TitleModel struct {
-	options []Option
-	cursor  int
+	paths  []route
+	cursor int
 }
 
 func MakeTitleModel() TitleModel {
 	return TitleModel{
-		options: []string{"play", "quit"},
+		paths: []route{play, settings, quit},
 	}
 }
 
@@ -30,24 +36,25 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
-
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
 			}
-
 		case "down", "j":
-			if m.cursor < len(m.options)-1 {
+			if m.cursor < len(m.paths)-1 {
 				m.cursor++
 			}
-
 		case "enter", "space":
-			switch m.options[m.cursor] {
-			case "play":
+			switch m.paths[m.cursor] {
+			case play:
 				return m, func() tea.Msg {
 					return nav.Navigate{Route: nav.Sweeper}
 				}
-			case "quit":
+			case settings:
+				return m, func() tea.Msg {
+					return nav.Navigate{Route: nav.Settings}
+				}
+			case quit:
 				return m, tea.Quit
 			}
 
@@ -58,16 +65,16 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 }
 
 func (m TitleModel) View() string {
-	options := make([]string, len(m.options))
-	for i, option := range m.options {
+	paths := make([]string, len(m.paths))
+	for i, path := range m.paths {
 		style := styles.OptionStyle
 		if i == m.cursor {
 			style = styles.SelectedOptionStyle
 		}
-		options[i] = style.Render(option)
+		paths[i] = style.Render(path)
 	}
 
-	list := lipgloss.JoinVertical(lipgloss.Center, options...)
+	list := lipgloss.JoinVertical(lipgloss.Center, paths...)
 
 	title := lipgloss.JoinVertical(lipgloss.Center,
 		styles.IconStyle.Render(constants.MineSymbol),

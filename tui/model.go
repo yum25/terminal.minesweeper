@@ -8,9 +8,10 @@ import (
 )
 
 type model struct {
-	route   nav.RouteState
-	title   views.TitleModel
-	sweeper views.SweeperModel
+	route    nav.RouteState
+	title    views.TitleModel
+	sweeper  views.SweeperModel
+	settings views.SettingsModel
 
 	width  int
 	height int
@@ -18,9 +19,10 @@ type model struct {
 
 func Model() model {
 	return model{
-		route:   nav.Title,
-		title:   views.MakeTitleModel(),
-		sweeper: views.MakeSweeperModel(),
+		route:    nav.Title,
+		title:    views.MakeTitleModel(),
+		sweeper:  views.MakeSweeperModel(),
+		settings: views.MakeSettingsModel(),
 	}
 }
 
@@ -32,14 +34,13 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case nav.Navigate:
-		m.route = nav.Sweeper
+		m.route = msg.Route
 		return m, nil
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
 	case tea.KeyPressMsg:
 		switch msg.String() {
-
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		}
@@ -54,6 +55,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		newSweeper, cmd := m.sweeper.Update(msg)
 		m.sweeper = newSweeper
 		return m, cmd
+	case nav.Settings:
+		newSettings, cmd := m.settings.Update(msg)
+		m.settings = newSettings
+		return m, cmd
 	}
 
 	return m, nil
@@ -62,15 +67,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() tea.View {
 	var v tea.View
 	v.AltScreen = true
-
 	var content string
 
 	switch m.route {
-
 	case nav.Title:
 		content = m.title.View()
 	case nav.Sweeper:
 		content = m.sweeper.View()
+	case nav.Settings:
+		content = m.settings.View()
 	}
 
 	screen := styles.Screen(m.width, m.height).Render(content)

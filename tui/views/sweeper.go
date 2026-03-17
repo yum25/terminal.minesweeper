@@ -9,6 +9,7 @@ import (
 	state "terminal.minesweeper/shared"
 	"terminal.minesweeper/tui/config"
 	"terminal.minesweeper/tui/constants"
+	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
 )
 
@@ -51,6 +52,10 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			}
 		case "r":
 			m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
+		case "m":
+			return m, func() tea.Msg {
+				return nav.Navigate{Route: nav.Title}
+			}
 		}
 		if !m.board.IsComplete() {
 			switch msg.String() {
@@ -60,7 +65,6 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 				m.board.OpenTile(m.cursor)
 			}
 
-			// After every board update, check for completion
 			m.board.CheckIsComplete()
 		}
 	}

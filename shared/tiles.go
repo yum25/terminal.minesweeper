@@ -10,4 +10,9 @@ const (
 	MineClosed
 	MineHit
 	MineRevealed
+
+	// Post game tile states
+	TileWin
+	TileFlaggedWrongRevealed
+	MineWin
 )

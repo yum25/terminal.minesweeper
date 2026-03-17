@@ -17,10 +17,11 @@ var (
 	Magenta   = lipgloss.Color("#BB8CAF")
 	Yellow    = lipgloss.Color("#F1CB81")
 	Cyan      = lipgloss.Color("#77c4d2")
-	Black     = lipgloss.Color("#394252")
+	Darkgray  = lipgloss.Color("#394252")
 	Gray      = lipgloss.Color("#878787")
 	Lightgray = lipgloss.Color("#cdcdcd")
 	White     = lipgloss.Color("#e9e9e9")
+	Black     = lipgloss.Color("0")
 )
 
 // Color Maps
@@ -33,19 +34,19 @@ var (
 		4: Magenta,
 		5: Yellow,
 		6: Cyan,
-		7: Black,
+		7: Darkgray,
 		8: Gray,
 	}
 
 	tileTextColorMap = map[int]color.Color{
 		0: Lightgray,
-		1: Black,
-		2: Black,
-		3: Black,
-		4: Black,
-		5: Black,
-		6: Black,
+		1: Darkgray,
+		2: Darkgray,
+		3: Darkgray,
+		4: Darkgray,
+		5: Darkgray,
+		6: Darkgray,
 		7: White,
-		8: Black,
+		8: Darkgray,
 	}
 )

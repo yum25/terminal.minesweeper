@@ -7,4 +7,5 @@ const (
 	CursorSymbol    = "<"
 	MineSymbol      = "☀"
 	MineHitSymbol   = "✸"
+	HeartSymbol     = "▝▞"
 )
