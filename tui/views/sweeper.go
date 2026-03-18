@@ -119,7 +119,7 @@ func (m SweeperModel) View(width, height int) string {
 		tiles[y] = lipgloss.JoinHorizontal(lipgloss.Center, row...)
 	}
 
-	footer := lipgloss.NewStyle().Padding(1, 2).Render(config.RenderHelp(config.GameKeyMap))
+	footer := lipgloss.NewStyle().Padding(0, 2).Render(config.RenderHelp(config.GameKeyMap))
 	board := styles.BoardStyle.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
