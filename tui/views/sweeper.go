@@ -3,6 +3,7 @@ package views
 import (
 	"strconv"
 
+	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/game"
@@ -33,35 +34,35 @@ func (m SweeperModel) Init() tea.Cmd {
 func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "up", "w":
+		switch {
+		case key.Matches(msg, config.GameKeyMap.Up):
 			if m.cursor.Y > 0 {
 				m.cursor.Y--
 			}
-		case "down", "s":
+		case key.Matches(msg, config.GameKeyMap.Down):
 			if m.cursor.Y < m.board.GetHeight()-1 {
 				m.cursor.Y++
 			}
-		case "left", "a":
+		case key.Matches(msg, config.GameKeyMap.Left):
 			if m.cursor.X > 0 {
 				m.cursor.X--
 			}
-		case "right", "d":
+		case key.Matches(msg, config.GameKeyMap.Right):
 			if m.cursor.X < m.board.GetWidth()-1 {
 				m.cursor.X++
 			}
-		case "r":
+		case key.Matches(msg, config.GameKeyMap.Restart):
 			m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
-		case "m":
+		case key.Matches(msg, config.GameKeyMap.Menu):
 			return m, func() tea.Msg {
 				return nav.Navigate{Route: nav.Title}
 			}
 		}
 		if !m.board.IsComplete() {
-			switch msg.String() {
-			case "f":
+			switch {
+			case key.Matches(msg, config.GameKeyMap.Flag):
 				m.board.Flag(m.cursor)
-			case "enter", "space":
+			case key.Matches(msg, config.GameKeyMap.Select):
 				m.board.OpenTile(m.cursor)
 			}
 
@@ -106,7 +107,7 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 	return style.Render(tileContent)
 }
 
-func (m SweeperModel) View() string {
+func (m SweeperModel) View(width, height int) string {
 	tiles := make([]string, m.board.GetHeight())
 
 	for y := range m.board.GetHeight() {
@@ -118,6 +119,7 @@ func (m SweeperModel) View() string {
 		tiles[y] = lipgloss.JoinHorizontal(lipgloss.Center, row...)
 	}
 
+	footer := lipgloss.NewStyle().Padding(1, 2).Render(config.RenderHelp(config.GameKeyMap))
 	board := styles.BoardStyle.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
@@ -125,5 +127,20 @@ func (m SweeperModel) View() string {
 		),
 	)
 
-	return board
+	boardWidth := lipgloss.Width(board)
+	boardHeight := lipgloss.Height(board)
+
+	if width < boardWidth || height < boardHeight {
+		return lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Center).
+			Render("Please expand the terminal!")
+	}
+
+	if height < boardHeight+lipgloss.Height(footer) {
+		return board
+	}
+
+	board = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(board)
+	footer = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(footer)
+
+	return lipgloss.JoinVertical(lipgloss.Center, board, footer)
 }

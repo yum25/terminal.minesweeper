@@ -1,8 +1,10 @@
 package views
 
 import (
+	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"terminal.minesweeper/tui/config"
 	"terminal.minesweeper/tui/constants"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
@@ -35,16 +37,16 @@ func (m TitleModel) Init() tea.Cmd {
 func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "up", "k":
+		switch {
+		case key.Matches(msg, config.UserKeyMap.Up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case "down", "j":
+		case key.Matches(msg, config.UserKeyMap.Down):
 			if m.cursor < len(m.paths)-1 {
 				m.cursor++
 			}
-		case "enter", "space":
+		case key.Matches(msg, config.UserKeyMap.Select):
 			switch m.paths[m.cursor] {
 			case play:
 				return m, func() tea.Msg {
@@ -64,7 +66,7 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m TitleModel) View() string {
+func (m TitleModel) View(width, height int) string {
 	paths := make([]string, len(m.paths))
 	for i, path := range m.paths {
 		style := styles.OptionStyle
@@ -75,12 +77,16 @@ func (m TitleModel) View() string {
 	}
 
 	list := lipgloss.JoinVertical(lipgloss.Center, paths...)
-
 	title := lipgloss.JoinVertical(lipgloss.Center,
 		styles.IconStyle.Render(constants.MineSymbol),
 		styles.TitleStyle.Render("terminal.minesweeper"),
 		styles.ListStyle.Render(list),
 	)
+	footer := lipgloss.NewStyle().AlignVertical(lipgloss.Bottom).AlignHorizontal(lipgloss.Center).
+		Width(width).Render(config.RenderHelp(config.UserKeyMap))
 
-	return title
+	title = lipgloss.NewStyle().AlignVertical(lipgloss.Center).AlignHorizontal(lipgloss.Center).
+		Width(width).Height(height - lipgloss.Height(footer)).Render(title)
+
+	return lipgloss.JoinVertical(lipgloss.Center, title, footer)
 }

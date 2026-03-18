@@ -2,7 +2,10 @@ module terminal.minesweeper
 
 go 1.26.1
 
-require charm.land/bubbletea/v2 v2.0.2
+require (
+	charm.land/bubbles/v2 v2.0.0
+	charm.land/bubbletea/v2 v2.0.2
+)
 
 require (
 	charm.land/lipgloss/v2 v2.0.2

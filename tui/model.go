@@ -1,7 +1,9 @@
 package tui
 
 import (
+	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
+	"terminal.minesweeper/tui/config"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
 	"terminal.minesweeper/tui/views"
@@ -40,8 +42,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
+		switch {
+		case key.Matches(msg, config.GameKeyMap.Quit):
 			return m, tea.Quit
 		}
 	}
@@ -71,9 +73,9 @@ func (m model) View() tea.View {
 
 	switch m.route {
 	case nav.Title:
-		content = m.title.View()
+		content = m.title.View(m.width, m.height)
 	case nav.Sweeper:
-		content = m.sweeper.View()
+		content = m.sweeper.View(m.width, m.height)
 	case nav.Settings:
 		content = m.settings.View()
 	}

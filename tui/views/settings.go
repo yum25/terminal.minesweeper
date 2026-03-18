@@ -1,8 +1,10 @@
 package views
 
 import (
+	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"terminal.minesweeper/tui/config"
 	"terminal.minesweeper/tui/constants"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
@@ -34,16 +36,16 @@ func (m SettingsModel) Init() tea.Cmd {
 func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "up", "k":
+		switch {
+		case key.Matches(msg, config.GameKeyMap.Up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case "down", "j":
+		case key.Matches(msg, config.GameKeyMap.Down):
 			if m.cursor < len(m.options)-1 {
 				m.cursor++
 			}
-		case "enter", "space":
+		case key.Matches(msg, config.GameKeyMap.Select):
 			switch m.options[m.cursor] {
 			case exit:
 				return m, func() tea.Msg {
