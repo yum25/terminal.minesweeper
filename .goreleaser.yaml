@@ -48,6 +48,7 @@ changelog:
 
 release:
   draft: true
+  prerelease: auto
   footer: >-
     ---
 
