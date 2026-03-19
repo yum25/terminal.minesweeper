@@ -98,7 +98,7 @@ func (u UserControlsMap) FullHelp() [][]key.Binding {
 }
 
 func (g GameControlsMap) ShortHelp() []key.Binding {
-	return []key.Binding{g.Up, g.Down, g.Left, g.Right, g.Select, g.Flag, g.Menu}
+	return []key.Binding{g.Select, g.Flag, g.Menu, g.Restart}
 }
 
 func (g GameControlsMap) FullHelp() [][]key.Binding {
