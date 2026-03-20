@@ -16,13 +16,13 @@ before:
     - go generate ./...
 
 builds:
-  - binary: tsweep
   - env:
       - CGO_ENABLED=0
     goos:
       - linux
       - windows
       - darwin
+    binary: tsweep
 
 archives:
   - formats: [tar.gz]
