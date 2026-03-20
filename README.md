@@ -14,6 +14,10 @@ If you'd like to play, run the following command into your terminal:
 
 ### Linux and macOS
 
-```shell
+```sh
 curl -sSL https://raw.githubusercontent.com/yum25/terminal.minesweeper/main/install.sh | sh
 ```
+
+Then enter `tsweep` in your terminal to start playing.
+
+Happy sweeping! ˗ˏˋ ✸ ˎˊ˗
