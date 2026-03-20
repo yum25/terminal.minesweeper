@@ -4,6 +4,8 @@ Play minesweeper on the terminal!
 
 A TUI built in Go using Charm libraries like bubbletea, lipgloss, and bubbles.
 
+![preview](./assets/demo.gif)
+
 ## Installation
 
 Currently, the available releases are in beta. However, the core functionality of playing minesweeper is already implemented!
