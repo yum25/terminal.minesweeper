@@ -5,6 +5,7 @@ import lipgloss "charm.land/lipgloss/v2"
 // Styles
 var (
 	OptionStyle         = lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Center)
+	DisabledOptionStyle = OptionStyle.Foreground(Gray).Background(Darkgray)
 	SelectedOptionStyle = OptionStyle.Foreground(Black).Background(CursorColor).Bold(true)
 	IconStyle           = lipgloss.NewStyle().Background(Green).Padding(0, 1)
 	ListStyle           = lipgloss.NewStyle().Padding(1)

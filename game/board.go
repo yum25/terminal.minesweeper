@@ -20,7 +20,7 @@ type Tile struct {
 
 type Board struct {
 	tiles    [][]Tile
-	time     int
+	seconds  int
 	started  bool
 	complete bool
 	defeated bool
@@ -207,6 +207,18 @@ func (b *Board) IsBoardSolved() bool {
 		}
 	}
 	return true
+}
+
+func (b *Board) IsStarted() bool {
+	return b.started
+}
+
+func (b *Board) GetTime() int {
+	return b.seconds
+}
+
+func (b *Board) Tick() {
+	b.seconds++
 }
 
 func (b *Board) RevealBoard() {

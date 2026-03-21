@@ -2,6 +2,7 @@ package views
 
 import (
 	"strconv"
+	"time"
 
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
@@ -13,6 +14,8 @@ import (
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
 )
+
+type tickMsg time.Time
 
 type SweeperModel struct {
 	board  *game.Board
@@ -26,6 +29,12 @@ func MakeSweeperModel() SweeperModel {
 	}
 }
 
+func Tick() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
+}
+
 func (m SweeperModel) Init() tea.Cmd {
 	// Just return `nil`, which means "no I/O right now, please."
 	return nil
@@ -33,6 +42,20 @@ func (m SweeperModel) Init() tea.Cmd {
 
 func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tickMsg:
+		if m.board.IsStarted() && !m.board.IsComplete() {
+			m.board.Tick()
+			return m, Tick()
+		}
+
+	case nav.Navigate:
+		switch msg.Payload {
+		case nav.Play:
+			m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
+		case nav.Continue:
+			return m, Tick()
+		}
+
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, config.GameKeyMap.Up):
@@ -51,18 +74,30 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			if m.cursor.X < m.board.GetWidth()-1 {
 				m.cursor.X++
 			}
+
 		case key.Matches(msg, config.GameKeyMap.Restart):
 			m.board = game.GenerateBoard(config.Width, config.Height, config.MineCount)
+
 		case key.Matches(msg, config.GameKeyMap.Menu):
+			if m.board.IsStarted() && !m.board.IsComplete() {
+				return m, func() tea.Msg {
+					return nav.Navigate{Route: nav.Title, Payload: nav.Paused}
+				}
+			}
 			return m, func() tea.Msg {
-				return nav.Navigate{Route: nav.Title}
+				return nav.Navigate{Route: nav.Title, Payload: nav.New}
 			}
 		}
+
 		if !m.board.IsComplete() {
 			switch {
 			case key.Matches(msg, config.GameKeyMap.Flag):
 				m.board.Flag(m.cursor)
 			case key.Matches(msg, config.GameKeyMap.Select):
+				if !m.board.IsStarted() {
+					m.board.OpenTile(m.cursor)
+					return m, Tick()
+				}
 				m.board.OpenTile(m.cursor)
 			}
 
@@ -141,6 +176,8 @@ func (m SweeperModel) View(width, height int) string {
 
 	board = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(board)
 	footer = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(footer)
+	timer := lipgloss.NewStyle().Width(boardWidth).AlignHorizontal(lipgloss.Left).Foreground(styles.Gray).
+		Padding(0, 1).Render(strconv.Itoa(m.board.GetTime()) + "s")
 
-	return lipgloss.JoinVertical(lipgloss.Center, board, footer)
+	return lipgloss.JoinVertical(lipgloss.Center, timer, board, footer)
 }

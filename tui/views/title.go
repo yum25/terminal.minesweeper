@@ -14,6 +14,7 @@ type route = string
 
 const (
 	play     route = "play"
+	resume   route = "continue"
 	settings route = "settings"
 	quit     route = "quit"
 )
@@ -21,6 +22,7 @@ const (
 type TitleModel struct {
 	paths  []route
 	cursor int
+	paused bool
 }
 
 func MakeTitleModel() TitleModel {
@@ -36,6 +38,16 @@ func (m TitleModel) Init() tea.Cmd {
 
 func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 	switch msg := msg.(type) {
+	case nav.Navigate:
+		switch msg.Payload {
+		case nav.New:
+			m.paths = []route{play, settings, quit}
+			m.paused = false
+		case nav.Paused:
+			m.paths = []route{play, resume, settings, quit}
+			m.paused = true
+		}
+
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, config.UserKeyMap.Up):
@@ -50,7 +62,11 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 			switch m.paths[m.cursor] {
 			case play:
 				return m, func() tea.Msg {
-					return nav.Navigate{Route: nav.Sweeper}
+					return nav.Navigate{Route: nav.Sweeper, Payload: nav.Play}
+				}
+			case resume:
+				return m, func() tea.Msg {
+					return nav.Navigate{Route: nav.Sweeper, Payload: nav.Continue}
 				}
 			case settings:
 				return m, func() tea.Msg {
@@ -67,11 +83,14 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 }
 
 func (m TitleModel) View(width, height int) string {
-	paths := make([]string, len(m.paths))
-	for i, path := range m.paths {
+	paths := []route{play, resume, settings, quit}
+	for i, path := range paths {
 		style := styles.OptionStyle
-		if i == m.cursor {
+		if path == m.paths[m.cursor] {
 			style = styles.SelectedOptionStyle
+		}
+		if path == resume && !m.paused {
+			style = styles.DisabledOptionStyle
 		}
 		paths[i] = style.Render(path)
 	}
