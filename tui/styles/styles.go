@@ -2,7 +2,6 @@ package styles
 
 import (
 	"image/color"
-	"slices"
 
 	lipgloss "charm.land/lipgloss/v2"
 )
@@ -15,36 +14,40 @@ var (
 	AlignHorzLeft   = lipgloss.NewStyle().AlignHorizontal(lipgloss.Left)
 	AlignHorzRight  = lipgloss.NewStyle().AlignHorizontal(lipgloss.Right)
 
+	Padding1  = lipgloss.NewStyle().Padding(1)
+	PaddingV1 = lipgloss.NewStyle().Padding(1, 0)
 	PaddingH1 = lipgloss.NewStyle().Padding(0, 1)
 	PaddingH2 = lipgloss.NewStyle().Padding(0, 2)
+
+	Bold = lipgloss.NewStyle().Bold(true)
 )
 
 // Custom Styles
 var (
-	OptionStyle         = lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Center)
-	DisabledOptionStyle = OptionStyle.Foreground(Gray).Background(Darkgray)
-	SelectedOptionStyle = OptionStyle.Foreground(Black).Background(CursorColor).Bold(true)
-	IconStyle           = lipgloss.NewStyle().Background(Green).Padding(0, 1)
-	ListStyle           = lipgloss.NewStyle().Padding(1)
-	TitleStyle          = lipgloss.NewStyle().Padding(1, 1, 0)
+	OptionStyle         = Merge([]lipgloss.Style{AlignHorzCenter, Width(10)})
+	DisabledOptionStyle = Merge([]lipgloss.Style{OptionStyle, Text(Gray), Highlight(Darkgray)})
+	SelectedOptionStyle = Merge([]lipgloss.Style{OptionStyle, Text(Black), Highlight(CursorColor), Bold})
+	IconStyle           = Merge([]lipgloss.Style{PaddingH1, Highlight(Green)})
+	ListStyle           = Padding1
+	TitleStyle          = PaddingV1
 
 	BoardStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder())
-	TileStyle  = AlignCenter.Width(2).Height(1)
+	TileStyle  = Merge([]lipgloss.Style{AlignCenter, Width(2), Height(1)})
 
-	FlaggedStyle = TileStyle.Foreground(Lightgray).Background(Darkgray)
-	CursorStyle  = TileStyle.Foreground(Black).Background(CursorColor)
-	MineStyle    = TileStyle.Background(Darkgray)
-	MineHitStyle = TileStyle.Background(Red)
+	FlaggedStyle = Merge([]lipgloss.Style{TileStyle, Text(Lightgray), Highlight(Darkgray)})
+	CursorStyle  = Merge([]lipgloss.Style{TileStyle, Text(Black), Highlight(CursorColor)})
+	MineStyle    = Merge([]lipgloss.Style{TileStyle, Highlight(Darkgray)})
+	MineHitStyle = Merge([]lipgloss.Style{TileStyle, Highlight(Red)})
 )
 
 // Helpers
 
-// A tailwind-esque style merge function that inherits styles starting from the
-// end of the array, imitating Cascading Style Sheets
+// A tailwind-esque style merge function that inherits styles in a
+// cascading manner
 func Merge(styles []lipgloss.Style) lipgloss.Style {
 	var style lipgloss.Style
-	for _, s := range slices.Backward(styles) {
-		style.Inherit(s)
+	for _, s := range styles {
+		style = s.Inherit(style)
 	}
 
 	return style
@@ -56,6 +59,14 @@ func Text(color color.Color) lipgloss.Style {
 
 func Highlight(color color.Color) lipgloss.Style {
 	return lipgloss.NewStyle().Background(color)
+}
+
+func Width(width int) lipgloss.Style {
+	return lipgloss.NewStyle().Width(width)
+}
+
+func Height(height int) lipgloss.Style {
+	return lipgloss.NewStyle().Height(height)
 }
 
 // Dynamic Styles

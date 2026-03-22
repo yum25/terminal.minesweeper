@@ -144,31 +144,41 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 }
 
 func (m SweeperModel) RenderHeader(width int) string {
+	// Render hearts
 	hearts := constants.HeartLostSymbol + constants.HeartLostSymbol + constants.HeartSymbol
 
 	lives := styles.Merge([]lipgloss.Style{
 		styles.AlignHorzLeft,
-		styles.PaddingH2,
 		styles.Text(styles.Red),
-	}).Width(width / 2).Render(hearts)
+		styles.Width(width / 2),
+	}).Render(hearts)
 
+	// Render flag count
 	flagIcon := styles.Highlight(styles.Charcoal).Render(
-		constants.FlagSymbol,
+		fmt.Sprintf("%s ", constants.FlagSymbol),
 	)
 	flagCount := fmt.Sprintf("%s %d/%d",
 		flagIcon,
 		m.board.GetFlagCount(),
 		m.board.GetMineCount(),
 	)
-	timer := fmt.Sprintf("%05ds", m.board.GetTime())
+
+	// Render timer, merge with flag count
+	timer := fmt.Sprintf("%ss", styles.Merge([]lipgloss.Style{
+		styles.Highlight(styles.Charcoal),
+		styles.PaddingH1,
+	}).Render(
+		fmt.Sprintf("%05d", m.board.GetTime())),
+	)
 
 	right := lipgloss.JoinHorizontal(
 		lipgloss.Center,
 		styles.PaddingH1.Render(flagCount),
-		styles.PaddingH1.Background(styles.Charcoal).Render(timer),
+		styles.PaddingH1.Render(timer),
 	)
 	right = styles.AlignHorzRight.Width(width / 2).Render(right)
 
+	// Merge all
 	header := lipgloss.JoinHorizontal(lipgloss.Center, lives, right)
 	header = styles.AlignHorzLeft.Width(width).Render(header)
 
@@ -177,7 +187,6 @@ func (m SweeperModel) RenderHeader(width int) string {
 
 func (m SweeperModel) RenderFooter(width int) string {
 	return styles.Merge([]lipgloss.Style{
-		styles.PaddingH2,
 		styles.AlignHorzCenter,
 	}).Width(width - 2).Render(config.RenderHelp(config.GameKeyMap))
 }
