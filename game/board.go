@@ -29,6 +29,9 @@ type Board struct {
 	height     int
 	mine_count int
 	flag_count int
+
+	lives_count int
+	lives_left  int
 }
 
 type TileOutOfBoundsError struct {

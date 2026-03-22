@@ -1,6 +1,7 @@
 package views
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -142,9 +143,47 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 	return style.Render(tileContent)
 }
 
+func (m SweeperModel) RenderHeader(width int) string {
+	hearts := constants.HeartLostSymbol + constants.HeartLostSymbol + constants.HeartSymbol
+
+	lives := styles.Merge([]lipgloss.Style{
+		styles.AlignHorzLeft,
+		styles.PaddingH2,
+		styles.Text(styles.Red),
+	}).Width(width / 2).Render(hearts)
+
+	flagIcon := styles.Highlight(styles.Charcoal).Render(
+		constants.FlagSymbol,
+	)
+	flagCount := fmt.Sprintf("%s %d/%d",
+		flagIcon,
+		m.board.GetFlagCount(),
+		m.board.GetMineCount(),
+	)
+	timer := fmt.Sprintf("%05ds", m.board.GetTime())
+
+	right := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		styles.PaddingH1.Render(flagCount),
+		styles.PaddingH1.Background(styles.Charcoal).Render(timer),
+	)
+	right = styles.AlignHorzRight.Width(width / 2).Render(right)
+
+	header := lipgloss.JoinHorizontal(lipgloss.Center, lives, right)
+	header = styles.AlignHorzLeft.Width(width).Render(header)
+
+	return header
+}
+
+func (m SweeperModel) RenderFooter(width int) string {
+	return styles.Merge([]lipgloss.Style{
+		styles.PaddingH2,
+		styles.AlignHorzCenter,
+	}).Width(width - 2).Render(config.RenderHelp(config.GameKeyMap))
+}
+
 func (m SweeperModel) View(width, height int) string {
 	tiles := make([]string, m.board.GetHeight())
-
 	for y := range m.board.GetHeight() {
 		row := make([]string, m.board.GetWidth())
 		for x := range row {
@@ -154,7 +193,6 @@ func (m SweeperModel) View(width, height int) string {
 		tiles[y] = lipgloss.JoinHorizontal(lipgloss.Center, row...)
 	}
 
-	footer := lipgloss.NewStyle().Padding(0, 2).Render(config.RenderHelp(config.GameKeyMap))
 	board := styles.BoardStyle.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
@@ -166,27 +204,20 @@ func (m SweeperModel) View(width, height int) string {
 	boardHeight := lipgloss.Height(board)
 
 	if width < boardWidth || height < boardHeight {
-		return lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Center).
+		return styles.AlignCenter.
 			Render("Please expand the terminal!")
 	}
 
+	header := m.RenderHeader(boardWidth)
+	if height < boardHeight+lipgloss.Height(header) {
+		return board
+	}
+	board = lipgloss.JoinVertical(lipgloss.Center, header, board)
+
+	footer := m.RenderFooter(boardWidth)
 	if height < boardHeight+lipgloss.Height(footer) {
 		return board
 	}
 
-	hearts := " • " + " • " + constants.HeartSymbol
-	lives := lipgloss.NewStyle().Width((boardWidth / 2) - 2).AlignHorizontal(lipgloss.Left).Foreground(styles.MineColor).Render(hearts)
-
-	flagCount := constants.FlagSymbol + " " + strconv.Itoa(m.board.GetFlagCount()) + "/" + strconv.Itoa(m.board.GetMineCount())
-	timer := lipgloss.NewStyle().Width((boardWidth / 2) - 2).AlignHorizontal(lipgloss.Right).Foreground(styles.Gray).Render(
-		lipgloss.JoinHorizontal(lipgloss.Center, flagCount, " "+strconv.Itoa(m.board.GetTime())+"s"))
-
-	header := lipgloss.JoinHorizontal(lipgloss.Center, lives, timer)
-	header = lipgloss.NewStyle().Width(boardWidth).AlignHorizontal(lipgloss.Left).
-		Padding(0, 2).Render(header)
-
-	board = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(board)
-	footer = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(footer)
-
-	return lipgloss.JoinVertical(lipgloss.Center, header, board, footer)
+	return lipgloss.JoinVertical(lipgloss.Center, board, footer)
 }

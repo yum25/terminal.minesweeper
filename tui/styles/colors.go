@@ -9,17 +9,19 @@ import (
 // Colors
 var (
 	CursorColor = lipgloss.Color("#f8957f")
-	MineColor   = lipgloss.Color("#fd4343")
 
-	Blue      = lipgloss.Color("#79A1C3")
-	Green     = lipgloss.Color("#9AC085")
-	Lightred  = lipgloss.Color("#fc7f90")
-	Magenta   = lipgloss.Color("#BB8CAF")
-	Yellow    = lipgloss.Color("#F1CB81")
-	Cyan      = lipgloss.Color("#77c4d2")
-	Darkgray  = lipgloss.Color("#394252")
+	Red      = lipgloss.Color("#fd4343")
+	Blue     = lipgloss.Color("#79A1C3")
+	Green    = lipgloss.Color("#9AC085")
+	Lightred = lipgloss.Color("#fc7f90")
+	Magenta  = lipgloss.Color("#BB8CAF")
+	Yellow   = lipgloss.Color("#F1CB81")
+	Cyan     = lipgloss.Color("#77c4d2")
+
 	Gray      = lipgloss.Color("#878787")
 	Lightgray = lipgloss.Color("#cdcdcd")
+	Darkgray  = lipgloss.Color("#394252")
+	Charcoal  = lipgloss.Color("#121212")
 	White     = lipgloss.Color("#e9e9e9")
 	Black     = lipgloss.Color("0")
 )

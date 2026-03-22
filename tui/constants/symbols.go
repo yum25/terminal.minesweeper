@@ -8,6 +8,7 @@ const (
 	MineSymbol      = "☀"
 	MineHitSymbol   = "✸"
 	HeartSymbol     = "▝▞ "
+	HeartLostSymbol = " • "
 )
 
 var HeartLostAnimation = [3]string{"▝▞ ", "▝▘ ", " • "}
