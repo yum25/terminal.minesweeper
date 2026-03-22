@@ -7,5 +7,7 @@ const (
 	CursorSymbol    = "<"
 	MineSymbol      = "☀"
 	MineHitSymbol   = "✸"
-	HeartSymbol     = "▝▞"
+	HeartSymbol     = "▝▞ "
 )
+
+var HeartLostAnimation = [3]string{"▝▞ ", "▝▘ ", " • "}

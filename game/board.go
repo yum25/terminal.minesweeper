@@ -28,14 +28,37 @@ type Board struct {
 	width      int
 	height     int
 	mine_count int
+	flag_count int
 }
 
 type TileOutOfBoundsError struct {
 	coord Coords
 }
 
+type UnsupportedBoardDimensions struct {
+	width  int
+	height int
+}
+
+type ImpossibleMineCount struct {
+	mine_count int
+	width      int
+	height     int
+}
+
 func (e *TileOutOfBoundsError) Error() string {
-	return fmt.Sprintf("Attempted to access tile out of bounds at Coords{X: %d, Y: %d}", e.coord.X, e.coord.Y)
+	return fmt.Sprintf("Attempted to access tile out of bounds at Coords{X: %d, Y: %d}",
+		e.coord.X, e.coord.Y)
+}
+
+func (e *UnsupportedBoardDimensions) Error() string {
+	return fmt.Sprintf("Unsupported board dimensions with width: %d, height: %d",
+		e.width, e.height)
+}
+
+func (e *ImpossibleMineCount) Error() string {
+	return fmt.Sprintf("Impossible mine count of %d mines with given dimensions %dx%d",
+		e.mine_count, e.width, e.height)
 }
 
 func GenerateBoard(width int, height int, mine_count int) *Board {
@@ -146,13 +169,28 @@ func (b *Board) Flag(coord Coords) {
 	switch b.GetTileState(coord) {
 	case state.TileFlagged:
 		b.SetTileState(coord, state.MineClosed)
+		b.flag_count--
+
 	case state.MineClosed:
 		b.SetTileState(coord, state.TileFlagged)
+		b.flag_count++
+
 	case state.TileClosed:
 		b.SetTileState(coord, state.TileFlaggedWrong)
+		b.flag_count++
+
 	case state.TileFlaggedWrong:
 		b.SetTileState(coord, state.TileClosed)
+		b.flag_count--
 	}
+}
+
+func (b *Board) GetFlagCount() int {
+	return b.flag_count
+}
+
+func (b *Board) GetMineCount() int {
+	return b.mine_count
 }
 
 func (b *Board) OpenTile(coord Coords) {

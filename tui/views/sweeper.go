@@ -174,10 +174,19 @@ func (m SweeperModel) View(width, height int) string {
 		return board
 	}
 
+	hearts := " • " + " • " + constants.HeartSymbol
+	lives := lipgloss.NewStyle().Width((boardWidth / 2) - 2).AlignHorizontal(lipgloss.Left).Foreground(styles.MineColor).Render(hearts)
+
+	flagCount := constants.FlagSymbol + " " + strconv.Itoa(m.board.GetFlagCount()) + "/" + strconv.Itoa(m.board.GetMineCount())
+	timer := lipgloss.NewStyle().Width((boardWidth / 2) - 2).AlignHorizontal(lipgloss.Right).Foreground(styles.Gray).Render(
+		lipgloss.JoinHorizontal(lipgloss.Center, flagCount, " "+strconv.Itoa(m.board.GetTime())+"s"))
+
+	header := lipgloss.JoinHorizontal(lipgloss.Center, lives, timer)
+	header = lipgloss.NewStyle().Width(boardWidth).AlignHorizontal(lipgloss.Left).
+		Padding(0, 2).Render(header)
+
 	board = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(board)
 	footer = lipgloss.NewStyle().Width(width).AlignHorizontal(lipgloss.Center).Render(footer)
-	timer := lipgloss.NewStyle().Width(boardWidth).AlignHorizontal(lipgloss.Left).Foreground(styles.Gray).
-		Padding(0, 1).Render(strconv.Itoa(m.board.GetTime()) + "s")
 
-	return lipgloss.JoinVertical(lipgloss.Center, timer, board, footer)
+	return lipgloss.JoinVertical(lipgloss.Center, header, board, footer)
 }
