@@ -1,6 +1,8 @@
 package views
 
 import (
+	"slices"
+
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -45,6 +47,7 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 			m.paused = false
 		case nav.Paused:
 			m.paths = []route{play, resume, settings, quit}
+			m.cursor = slices.Index(m.paths, resume)
 			m.paused = true
 		}
 
