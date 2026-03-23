@@ -11,8 +11,10 @@ var (
 	AlignCenter     = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Center)
 	AlignHorzCenter = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 	AlignVertCenter = lipgloss.NewStyle().AlignVertical(lipgloss.Center)
-	AlignHorzLeft   = lipgloss.NewStyle().AlignHorizontal(lipgloss.Left)
-	AlignHorzRight  = lipgloss.NewStyle().AlignHorizontal(lipgloss.Right)
+	AlignTop        = lipgloss.NewStyle().AlignVertical(lipgloss.Top)
+	AlignBottom     = lipgloss.NewStyle().AlignVertical(lipgloss.Bottom)
+	AlignLeft       = lipgloss.NewStyle().AlignHorizontal(lipgloss.Left)
+	AlignRight      = lipgloss.NewStyle().AlignHorizontal(lipgloss.Right)
 
 	Padding1  = lipgloss.NewStyle().Padding(1)
 	PaddingV1 = lipgloss.NewStyle().Padding(1, 0)

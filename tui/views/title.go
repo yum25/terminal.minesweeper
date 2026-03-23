@@ -104,11 +104,24 @@ func (m TitleModel) View(width, height int) string {
 		styles.TitleStyle.Render("terminal.minesweeper"),
 		styles.ListStyle.Render(list),
 	)
-	footer := lipgloss.NewStyle().AlignVertical(lipgloss.Bottom).AlignHorizontal(lipgloss.Center).
-		Width(width).Render(config.RenderHelp(config.UserKeyMap))
 
-	title = lipgloss.NewStyle().AlignVertical(lipgloss.Center).AlignHorizontal(lipgloss.Center).
-		Width(width).Height(height - lipgloss.Height(footer)).Render(title)
+	footer := styles.Merge([]lipgloss.Style{
+		styles.AlignBottom,
+		styles.AlignHorzCenter,
+		styles.Width(width),
+	}).Render(config.RenderHelp(config.UserKeyMap))
+
+	styles.Merge([]lipgloss.Style{
+		styles.AlignCenter,
+		styles.Width(width),
+		styles.Height(height - lipgloss.Height(footer)),
+	})
+
+	title = styles.Merge([]lipgloss.Style{
+		styles.AlignCenter,
+		styles.Width(width),
+		styles.Height(height - lipgloss.Height(footer)),
+	}).Render(title)
 
 	return lipgloss.JoinVertical(lipgloss.Center, title, footer)
 }
