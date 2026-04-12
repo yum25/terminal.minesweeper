@@ -36,10 +36,36 @@ func configPath() (string, error) {
 }
 
 func LoadConfig() (*constants.Config, error) {
-	return &constants.DEFAULT_CONFIG, nil
+	path, err := configPath()
+	if err != nil {
+		return nil, err
+	}
+	data, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		return &constants.DEFAULT_CONFIG, nil // default config
+	}
+
+	var config constants.Config
+	err = json.Unmarshal(data, &config)
+
+	return &config, err
 }
 
-func loadStats() (constants.Stats, error) {
+func SaveConfig(config constants.Config) error {
+	path, err := configPath()
+	if err != nil {
+		return err
+	}
+
+	data, err := json.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, data, 0644)
+}
+
+func LoadStats() (constants.Stats, error) {
 	path, err := statsPath()
 	if err != nil {
 		return constants.Stats{}, err
@@ -55,7 +81,7 @@ func loadStats() (constants.Stats, error) {
 	return stats, err
 }
 
-func saveStats(stats constants.Stats) error {
+func SaveStats(stats constants.Stats) error {
 	path, err := statsPath()
 	if err != nil {
 		return err
