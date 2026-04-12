@@ -93,7 +93,7 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 		if !m.board.IsComplete() {
 			switch {
 			case key.Matches(msg, config.GameKeyMap.Flag):
-				m.board.Flag(m.cursor)
+				m.board.SetFlag(m.cursor)
 			case key.Matches(msg, config.GameKeyMap.Select):
 				if !m.board.IsStarted() {
 					m.board.OpenTile(m.cursor)
@@ -124,7 +124,7 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 			style = styles.MineStyle
 		}
 	case state.TileOpen:
-		adjacent := m.board.Adjacent(coord)
+		adjacent := m.board.GetAdjacent(coord)
 		tileContent = strconv.Itoa(adjacent)
 		style = styles.RevealedStyle(adjacent)
 	case state.MineHit:

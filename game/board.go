@@ -97,7 +97,7 @@ func (b *Board) Populate(coord Coords) {
 			b.SetTileState(Coords{X: x, Y: y}, state.MineClosed)
 
 			for _, ncoords := range b.GetNeighbors(Coords{X: x, Y: y}) {
-				b.SetAdjacent(ncoords, b.Adjacent(ncoords)+1)
+				b.SetAdjacent(ncoords, b.GetAdjacent(ncoords)+1)
 			}
 
 			local_count++
@@ -113,24 +113,19 @@ func (b *Board) GetHeight() int {
 	return b.height
 }
 
+func (b *Board) GetFlagCount() int {
+	return b.flag_count
+}
+
+func (b *Board) GetMineCount() int {
+	return b.mine_count
+}
+
 func (b *Board) GetTile(coord Coords) (*Tile, *TileOutOfBoundsError) {
 	if coord.X < 0 || coord.X >= b.width || coord.Y < 0 || coord.Y >= b.height {
 		return nil, &TileOutOfBoundsError{}
 	}
 	return &b.tiles[coord.Y][coord.X], nil
-}
-
-func (b *Board) GetNeighbors(coord Coords) []Coords {
-	neighbors := []Coords{}
-	for y := coord.Y - 1; y <= coord.Y+1; y++ {
-		for x := coord.X - 1; x <= coord.X+1; x++ {
-			if _, err := b.GetTile(Coords{X: x, Y: y}); err == nil {
-				neighbors = append(neighbors, Coords{X: x, Y: y})
-			}
-		}
-	}
-
-	return neighbors
 }
 
 func (b *Board) GetTileState(coord Coords) state.TileState {
@@ -151,7 +146,20 @@ func (b *Board) SetTileState(coord Coords, tileState state.TileState) {
 	t.state = tileState
 }
 
-func (b *Board) Adjacent(coord Coords) int {
+func (b *Board) GetNeighbors(coord Coords) []Coords {
+	neighbors := []Coords{}
+	for y := coord.Y - 1; y <= coord.Y+1; y++ {
+		for x := coord.X - 1; x <= coord.X+1; x++ {
+			if _, err := b.GetTile(Coords{X: x, Y: y}); err == nil {
+				neighbors = append(neighbors, Coords{X: x, Y: y})
+			}
+		}
+	}
+
+	return neighbors
+}
+
+func (b *Board) GetAdjacent(coord Coords) int {
 	t, err := b.GetTile(coord)
 	if err != nil {
 		log.Printf("WARNING: Board.Adjacent produced error %s", err.Error())
@@ -168,7 +176,7 @@ func (b *Board) SetAdjacent(coord Coords, count int) {
 	t.adjacent = count
 }
 
-func (b *Board) Flag(coord Coords) {
+func (b *Board) SetFlag(coord Coords) {
 	switch b.GetTileState(coord) {
 	case state.TileFlagged:
 		b.SetTileState(coord, state.MineClosed)
@@ -188,14 +196,6 @@ func (b *Board) Flag(coord Coords) {
 	}
 }
 
-func (b *Board) GetFlagCount() int {
-	return b.flag_count
-}
-
-func (b *Board) GetMineCount() int {
-	return b.mine_count
-}
-
 func (b *Board) OpenTile(coord Coords) {
 	if b.GetTileState(coord) == state.TileFlagged {
 		return
@@ -212,7 +212,7 @@ func (b *Board) OpenTile(coord Coords) {
 		b.started = true
 
 		for _, ncoords := range b.GetNeighbors(coord) {
-			if b.Adjacent(ncoords) > 0 {
+			if b.GetAdjacent(ncoords) > 0 {
 				continue
 			}
 			for _, acoords := range b.GetNeighbors(ncoords) {
@@ -230,24 +230,13 @@ func (b *Board) OpenSafeTile(coord Coords) {
 		return
 	}
 	b.SetTileState(coord, state.TileOpen)
-	if b.Adjacent(coord) > 0 {
+	if b.GetAdjacent(coord) > 0 {
 		return
 	}
 
 	for _, ncoords := range b.GetNeighbors(coord) {
 		b.OpenSafeTile(ncoords)
 	}
-}
-
-func (b *Board) IsBoardSolved() bool {
-	for _, row := range b.tiles {
-		for _, tile := range row {
-			if tile.state == state.TileClosed {
-				return false
-			}
-		}
-	}
-	return true
 }
 
 func (b *Board) IsStarted() bool {
@@ -260,6 +249,17 @@ func (b *Board) GetTime() int {
 
 func (b *Board) Tick() {
 	b.seconds++
+}
+
+func (b *Board) IsBoardSolved() bool {
+	for _, row := range b.tiles {
+		for _, tile := range row {
+			if tile.state == state.TileClosed {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func (b *Board) RevealBoard() {
