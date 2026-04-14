@@ -23,7 +23,7 @@ var (
 	Darkgray  = lipgloss.Color("#394252")
 	Charcoal  = lipgloss.Color("#121212")
 	White     = lipgloss.Color("#e9e9e9")
-	Black     = lipgloss.Color("0")
+	Black     = lipgloss.Color("#000000")
 )
 
 // Color Maps
