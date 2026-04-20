@@ -26,7 +26,7 @@ var (
 
 // Custom Styles
 var (
-	OptionStyle         = Merge([]lipgloss.Style{AlignHorzCenter, Width(10)})
+	OptionStyle         = Merge([]lipgloss.Style{AlignCenter, Width(10)})
 	DisabledOptionStyle = Merge([]lipgloss.Style{OptionStyle, Text(Gray), Highlight(Darkgray)})
 	SelectedOptionStyle = Merge([]lipgloss.Style{OptionStyle, Text(Black), Highlight(CursorColor), Bold})
 	IconStyle           = Merge([]lipgloss.Style{Highlight(Green), PaddingH1})

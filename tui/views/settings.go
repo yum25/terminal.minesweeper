@@ -12,17 +12,23 @@ import (
 type option = string
 
 const (
-	exit option = "exit"
+	gameplay option = "gameplay"
+	display  option = "display"
+	audio    option = "audio"
+	controls option = "controls"
+	exit     option = "exit"
 )
 
 type SettingsModel struct {
-	options []option
-	cursor  int
+	options  []option
+	cursor   int
+	focus    option
+	bindMode bool
 }
 
 func MakeSettingsModel() SettingsModel {
 	return SettingsModel{
-		options: []string{exit},
+		options: []string{gameplay, display, audio, controls, exit},
 	}
 }
 
@@ -67,11 +73,11 @@ func (m SettingsModel) View() string {
 		options[i] = style.Render(option)
 	}
 
-	list := lipgloss.JoinVertical(lipgloss.Center, options...)
+	list := lipgloss.JoinHorizontal(lipgloss.Center, options...)
 
 	title := lipgloss.JoinVertical(lipgloss.Center,
-		styles.TitleStyle.Render("coming soon!"),
 		styles.ListStyle.Render(list),
+		styles.BoardStyle.Render(""),
 	)
 
 	return title

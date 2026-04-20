@@ -21,18 +21,12 @@ type tickMsg time.Time
 type SweeperModel struct {
 	board  *game.Board
 	cursor game.Coords
-	params *constants.Config
 }
 
 func MakeSweeperModel() SweeperModel {
-	boardConfig, err := config.LoadConfig()
-	if err != nil {
-		panic("Read in invalid settings configuration file.")
-	}
 	return SweeperModel{
-		board:  game.GenerateBoard(boardConfig),
-		cursor: game.Coords{X: boardConfig.Width / 2, Y: boardConfig.Height / 2},
-		params: boardConfig,
+		board:  game.GenerateBoard(&config.Current.Board),
+		cursor: game.Coords{X: config.Current.Board.Width / 2, Y: config.Current.Board.Height / 2},
 	}
 }
 
@@ -58,7 +52,7 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 	case nav.Navigate:
 		switch msg.Payload {
 		case nav.Play:
-			m.board = game.GenerateBoard(m.params)
+			m.board = game.GenerateBoard(&config.Current.Board)
 		case nav.Continue:
 			return m, Tick()
 		}
@@ -83,7 +77,7 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			}
 
 		case key.Matches(msg, config.GameKeyMap.Restart):
-			m.board = game.GenerateBoard(m.params)
+			m.board = game.GenerateBoard(&config.Current.Board)
 
 		case key.Matches(msg, config.GameKeyMap.Menu):
 			if m.board.IsStarted() && !m.board.IsComplete() {
