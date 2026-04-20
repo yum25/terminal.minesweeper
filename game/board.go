@@ -6,7 +6,7 @@ import (
 	"math/rand"
 
 	state "terminal.minesweeper/shared"
-	"terminal.minesweeper/tui/constants"
+	"terminal.minesweeper/tui/config"
 )
 
 type Coords struct {
@@ -65,7 +65,7 @@ func (e *ImpossibleMineCount) Error() string {
 		e.mine_count, e.width, e.height)
 }
 
-func GenerateBoard(config *constants.Config) *Board {
+func GenerateBoard(config *config.BoardConfig) *Board {
 	tiles := make([][]Tile, config.Height)
 	for i := range tiles {
 		tiles[i] = make([]Tile, config.Width)

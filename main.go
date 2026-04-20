@@ -6,6 +6,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"terminal.minesweeper/tui"
+	"terminal.minesweeper/tui/config"
 )
 
 func main() {
@@ -16,6 +17,11 @@ func main() {
 			os.Exit(1)
 		}
 		defer f.Close()
+	}
+
+	err := config.LoadConfig()
+	if err != nil {
+		config.Current = config.DEFAULT_CONFIG
 	}
 
 	p := tea.NewProgram(tui.Model())
