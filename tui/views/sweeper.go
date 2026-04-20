@@ -211,7 +211,7 @@ func (m SweeperModel) View(width, height int) string {
 		tiles[y] = lipgloss.JoinHorizontal(lipgloss.Center, row...)
 	}
 
-	board := styles.BoardStyle.Render(
+	board := styles.BorderStyle.Render(
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			tiles...,

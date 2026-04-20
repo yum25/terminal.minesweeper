@@ -33,13 +33,15 @@ var (
 	ListStyle           = Padding1
 	TitleStyle          = PaddingV1
 
-	BoardStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder())
-	TileStyle  = Merge([]lipgloss.Style{AlignCenter, Width(2), Height(1)})
+	BorderStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder())
+	TileStyle   = Merge([]lipgloss.Style{AlignCenter, Width(2), Height(1)})
 
 	FlaggedStyle = Merge([]lipgloss.Style{TileStyle, Text(Lightgray), Highlight(Darkgray)})
 	CursorStyle  = Merge([]lipgloss.Style{TileStyle, Text(Black), Highlight(CursorColor)})
 	MineStyle    = Merge([]lipgloss.Style{TileStyle, Highlight(Darkgray)})
 	MineHitStyle = Merge([]lipgloss.Style{TileStyle, Highlight(Red)})
+
+	IndentStyle = Merge([]lipgloss.Style{Highlight(Charcoal), PaddingH1})
 )
 
 // Helpers

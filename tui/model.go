@@ -76,7 +76,7 @@ func (m model) View() tea.View {
 	case nav.Sweeper:
 		content = m.sweeper.View(m.width, m.height)
 	case nav.Settings:
-		content = m.settings.View()
+		content = m.settings.View(m.width, m.height)
 	}
 
 	screen := styles.Screen(m.width, m.height).Render(content)
