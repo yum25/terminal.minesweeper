@@ -2,8 +2,10 @@ package styles
 
 import (
 	"image/color"
+	"slices"
 
 	lipgloss "charm.land/lipgloss/v2"
+	"terminal.minesweeper/tui/constants"
 )
 
 // Tailwind-esque defaults
@@ -84,4 +86,25 @@ func Screen(width int, height int) lipgloss.Style {
 
 func RevealedStyle(adjacent int) lipgloss.Style {
 	return TileStyle.Foreground(tileTextColorMap[adjacent]).Background(tileColorMap[adjacent])
+}
+
+// Render Helpers
+func AddHalfPixelBorder(Component string, styles lipgloss.Style) string {
+	vBorderTop := lipgloss.JoinHorizontal(lipgloss.Center,
+		slices.Repeat(
+			[]string{constants.HalfPixelBottom},
+			lipgloss.Width(Component))...,
+	)
+
+	vBorderBottom := lipgloss.JoinHorizontal(lipgloss.Center,
+		slices.Repeat(
+			[]string{constants.HalfPixelTop},
+			lipgloss.Width(Component))...,
+	)
+
+	return lipgloss.JoinVertical(lipgloss.Center,
+		styles.Render(vBorderTop),
+		Component,
+		styles.Render(vBorderBottom),
+	)
 }

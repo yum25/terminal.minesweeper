@@ -89,10 +89,25 @@ func (m SettingsModel) View(width, height int) string {
 		if i == m.cursor {
 			style = styles.SelectedOptionStyle
 		}
-		options[i] = styles.BorderStyle.Render(lipgloss.JoinHorizontal(lipgloss.Center,
-			style.Render(option),
-			styles.IndentStyle.Render(strconv.Itoa(i+1))),
+
+		index := styles.IndentStyle.Render(strconv.Itoa(i + 1))
+		options[i] = styles.Merge([]lipgloss.Style{
+			style,
+			styles.Width(
+				lipgloss.Width(option) + lipgloss.Width(index) + 3),
+		}).Render(
+			lipgloss.JoinHorizontal(lipgloss.Center,
+				option,
+				" ",
+				index,
+			),
 		)
+
+		if i == m.cursor {
+			options[i] = styles.AddHalfPixelBorder(options[i], styles.Text(styles.CursorColor))
+		}
+
+		options[i] = styles.PaddingH1.Render(options[i])
 	}
 
 	list := lipgloss.JoinHorizontal(lipgloss.Center, options...)

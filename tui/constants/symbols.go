@@ -12,3 +12,6 @@ const (
 )
 
 var HeartLostAnimation = [3]string{"▝▞ ", "▝▘ ", " • "}
+
+var HalfPixelTop = "▀"
+var HalfPixelBottom = "▄"
