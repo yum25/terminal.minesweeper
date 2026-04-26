@@ -80,6 +80,13 @@ func GenerateBoard(config *config.BoardConfig) *Board {
 }
 
 func (b *Board) Populate(coord Coords) {
+	// Reset all tiles
+	for y, row := range b.tiles {
+		for x := range row {
+			b.SetTileState(Coords{x, y}, state.TileClosed)
+		}
+	}
+
 	// Preclear starting tiles
 	b.SetTileState(coord, state.TileOpen)
 	b.SetAdjacent(coord, 0)
@@ -255,7 +262,7 @@ func (b *Board) Tick() {
 func (b *Board) IsBoardSolved() bool {
 	for _, row := range b.tiles {
 		for _, tile := range row {
-			if tile.state == state.TileClosed {
+			if tile.state == state.TileClosed || tile.state == state.TileFlaggedWrong {
 				return false
 			}
 		}
