@@ -10,9 +10,10 @@ const (
 )
 
 type BoardConfig struct {
-	Width     int
-	Height    int
-	MineCount int
+	Width      int
+	Height     int
+	MineCount  int
+	LivesCount int
 }
 
 const (

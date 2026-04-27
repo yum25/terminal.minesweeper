@@ -20,9 +20,10 @@ type Stats struct {
 
 var DEFAULT_CONFIG = Config{
 	Board: BoardConfig{
-		Width:     ADVANCED_WIDTH,
-		Height:    ADVANCED_HEIGHT,
-		MineCount: ADVANCED_MINE_COUNT,
+		Width:      ADVANCED_WIDTH,
+		Height:     ADVANCED_HEIGHT,
+		MineCount:  ADVANCED_MINE_COUNT,
+		LivesCount: 1,
 	},
 	BoardType:   AdvancedBoard,
 	Controls:    DEFAULT_GAMEKEYMAP,

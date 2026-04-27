@@ -3,6 +3,7 @@ package views
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"charm.land/bubbles/v2/key"
@@ -145,13 +146,21 @@ func (m SweeperModel) RenderTile(coord game.Coords) string {
 
 func (m SweeperModel) RenderHeader(width int) string {
 	// Render hearts
-	hearts := constants.HeartLostSymbol + constants.HeartLostSymbol + constants.HeartSymbol
+	var hearts strings.Builder
+	livesLeft := m.board.GetLivesLeft()
+	for i := range m.board.GetLivesCount() {
+		if livesLeft > 0 && livesLeft-1 <= i {
+			hearts.WriteString(constants.HeartSymbol)
+		} else {
+			hearts.WriteString(constants.HeartLostSymbol)
+		}
+	}
 
 	lives := styles.Merge([]lipgloss.Style{
 		styles.AlignLeft,
 		styles.Text(styles.Red),
 		styles.Width(width / 2),
-	}).Render(hearts)
+	}).Render(hearts.String())
 
 	// Render flag count
 	flagIcon := styles.Highlight(styles.Charcoal).Render(

@@ -50,6 +50,10 @@ type ImpossibleMineCount struct {
 	height     int
 }
 
+type ImpossibleLivesCount struct {
+	lives_count int
+}
+
 func (e *TileOutOfBoundsError) Error() string {
 	return fmt.Sprintf("Attempted to access tile out of bounds at Coords{X: %d, Y: %d}",
 		e.coord.X, e.coord.Y)
@@ -65,6 +69,10 @@ func (e *ImpossibleMineCount) Error() string {
 		e.mine_count, e.width, e.height)
 }
 
+func (e *ImpossibleLivesCount) Error() string {
+	return fmt.Sprintf("Impossible lives count of %d lives detected", e.lives_count)
+}
+
 func GenerateBoard(config *config.BoardConfig) *Board {
 	tiles := make([][]Tile, config.Height)
 	for i := range tiles {
@@ -72,10 +80,12 @@ func GenerateBoard(config *config.BoardConfig) *Board {
 	}
 
 	return &Board{
-		tiles:      tiles,
-		width:      config.Width,
-		height:     config.Height,
-		mine_count: config.MineCount,
+		tiles:       tiles,
+		width:       config.Width,
+		height:      config.Height,
+		mine_count:  config.MineCount,
+		lives_count: config.LivesCount,
+		lives_left:  config.LivesCount,
 	}
 }
 
@@ -129,6 +139,14 @@ func (b *Board) GetMineCount() int {
 	return b.mine_count
 }
 
+func (b *Board) GetLivesCount() int {
+	return b.lives_count
+}
+
+func (b *Board) GetLivesLeft() int {
+	return b.lives_left
+}
+
 func (b *Board) GetTile(coord Coords) (*Tile, *TileOutOfBoundsError) {
 	if coord.X < 0 || coord.X >= b.width || coord.Y < 0 || coord.Y >= b.height {
 		return nil, &TileOutOfBoundsError{}
@@ -150,7 +168,6 @@ func (b *Board) SetTileState(coord Coords, tileState state.TileState) {
 		log.Printf("WARNING: Board.SetTileState produced error %s", err.Error())
 		return
 	}
-
 	t.state = tileState
 }
 
@@ -163,7 +180,6 @@ func (b *Board) GetNeighbors(coord Coords) []Coords {
 			}
 		}
 	}
-
 	return neighbors
 }
 
@@ -211,7 +227,7 @@ func (b *Board) OpenTile(coord Coords) {
 
 	if b.GetTileState(coord) == state.MineClosed {
 		b.SetTileState(coord, state.MineHit)
-		b.defeated = true
+		b.lives_left--
 		return
 	}
 
@@ -284,7 +300,13 @@ func (b *Board) RevealBoard() {
 }
 
 func (b *Board) CheckIsComplete() {
-	if b.IsBoardSolved() || b.defeated {
+	if b.lives_left == 0 {
+		b.defeated = true
+
+		b.RevealBoard()
+		b.complete = true
+	}
+	if b.IsBoardSolved() {
 		b.RevealBoard()
 		b.complete = true
 	}
