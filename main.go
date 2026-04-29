@@ -5,8 +5,8 @@ import (
 	"os"
 
 	tea "charm.land/bubbletea/v2"
+	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui"
-	"terminal.minesweeper/tui/config"
 )
 
 func main() {

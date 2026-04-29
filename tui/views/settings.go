@@ -6,7 +6,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"terminal.minesweeper/tui/config"
+	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
 )
@@ -22,15 +22,17 @@ const (
 )
 
 type SettingsModel struct {
-	options  []option
-	cursor   int
-	focus    option
-	bindMode bool
+	options     []option
+	cursor      int
+	focus       option
+	bindMode    bool
+	localConfig config.Config
 }
 
 func MakeSettingsModel() SettingsModel {
 	return SettingsModel{
-		options: []string{gameplay, display, audio, controls, exit},
+		options:     []string{gameplay, display, audio, controls, exit},
+		localConfig: config.Current,
 	}
 }
 
@@ -59,6 +61,13 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 				return m, func() tea.Msg {
 					return nav.Navigate{Route: nav.Title}
 				}
+			}
+		default:
+			if len(msg.String()) == 1 && msg.String() >= "0" && msg.String() <= "5" {
+				num, _ := strconv.Atoi(msg.String())
+
+				m.cursor = num - 1
+				m.focus = m.options[m.cursor]
 			}
 		}
 	}

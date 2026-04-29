@@ -3,7 +3,7 @@ package tui
 import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
-	"terminal.minesweeper/tui/config"
+	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
 	"terminal.minesweeper/tui/views"

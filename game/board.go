@@ -5,8 +5,8 @@ import (
 	"log"
 	"math/rand"
 
+	"terminal.minesweeper/config"
 	state "terminal.minesweeper/shared"
-	"terminal.minesweeper/tui/config"
 )
 
 type Coords struct {

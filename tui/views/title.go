@@ -6,7 +6,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"terminal.minesweeper/tui/config"
+	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/constants"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
