@@ -75,22 +75,6 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m SettingsModel) RenderGameplay() string {
-	return ""
-}
-
-func (m SettingsModel) RenderDisplay() string {
-	return ""
-}
-
-func (m SettingsModel) RenderAudio() string {
-	return ""
-}
-
-func (m SettingsModel) RenderControls() string {
-	return ""
-}
-
 func (m SettingsModel) View(width, height int) string {
 	options := make([]string, len(m.options))
 	for i, option := range m.options {
