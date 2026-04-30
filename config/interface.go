@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	Board       BoardConfig   `json:"board"`
-	BoardType   BoardPreset   `json:"board_type"`
-	Controls    ControlMap    `json:"controls"`
-	ControlType ControlPreset `json:"control_type"`
+	Board        BoardConfig     `json:"board"`
+	BoardType    BoardPreset     `json:"board_type"`
+	UserControls UserControlsMap `json:"user_controls"`
+	GameControls GameControlsMap `json:"game_controls"`
+	ControlType  ControlPreset   `json:"control_type"`
 }
 
 type Stats struct {
@@ -25,12 +26,11 @@ var DEFAULT_CONFIG = Config{
 		MineCount:  ADVANCED_MINE_COUNT,
 		LivesCount: 1,
 	},
-	BoardType:   AdvancedBoard,
-	Controls:    DEFAULT_GAMEKEYMAP,
-	ControlType: DefaultControls,
+	BoardType:    AdvancedBoard,
+	UserControls: DEFAULT_USERKEYMAP,
+	GameControls: DEFAULT_GAMEKEYMAP,
+	ControlType:  DefaultControls,
 }
-
-var Current Config
 
 func appDir() (string, error) {
 	configDir, err := os.UserConfigDir()
@@ -59,30 +59,30 @@ func configPath() (string, error) {
 	return filepath.Join(dir, "config.json"), nil
 }
 
-func LoadConfig() error {
+func (c *Config) LoadConfig() error {
 	path, err := configPath()
 	if err != nil {
 		return err
 	}
 	data, err := os.ReadFile(path)
-	if os.IsNotExist(err) {
-		Current = DEFAULT_CONFIG
+	if err != nil {
+		return err
 	}
 
 	var local Config
 	err = json.Unmarshal(data, &local)
 
-	Current = local
+	*c = local
 	return err
 }
 
-func SaveConfig(config *Config) error {
+func (c *Config) SaveConfig() error {
 	path, err := configPath()
 	if err != nil {
 		return err
 	}
 
-	data, err := json.Marshal(config)
+	data, err := json.Marshal(c)
 	if err != nil {
 		return err
 	}

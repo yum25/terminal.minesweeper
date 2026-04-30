@@ -23,11 +23,12 @@ const (
 )
 
 type SettingsModel struct {
-	options     []option
-	cursor      int
-	focus       option
-	bindMode    bool
-	localConfig config.Config
+	options       []option
+	cursor        int
+	focus         option
+	bindMode      bool
+	localConfig   *config.Config
+	currentConfig *config.Config
 	// Subviews
 	GameplayView settings.GameplayModel
 	DisplayView  settings.DisplayModel
@@ -35,10 +36,17 @@ type SettingsModel struct {
 	ControlsView settings.ControlsModel
 }
 
-func MakeSettingsModel() SettingsModel {
+func MakeSettingsModel(currentConfig *config.Config) SettingsModel {
+	var localConfig config.Config
+	err := localConfig.LoadConfig()
+
+	if err != nil {
+		localConfig = config.DEFAULT_CONFIG
+	}
 	return SettingsModel{
-		options:     []string{gameplay, display, audio, controls, exit},
-		localConfig: config.Current,
+		options:       []string{gameplay, display, audio, controls, exit},
+		localConfig:   &localConfig,
+		currentConfig: currentConfig,
 	}
 }
 
@@ -51,17 +59,17 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, config.GameKeyMap.Up) ||
-			key.Matches(msg, config.GameKeyMap.Left):
+		case key.Matches(msg, m.localConfig.UserControls.Up) ||
+			key.Matches(msg, m.localConfig.UserControls.Left):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case key.Matches(msg, config.GameKeyMap.Down) ||
-			key.Matches(msg, config.GameKeyMap.Right):
+		case key.Matches(msg, m.localConfig.UserControls.Down) ||
+			key.Matches(msg, m.localConfig.UserControls.Right):
 			if m.cursor < len(m.options)-1 {
 				m.cursor++
 			}
-		case key.Matches(msg, config.GameKeyMap.Select):
+		case key.Matches(msg, m.localConfig.UserControls.Select):
 			switch m.options[m.cursor] {
 			case exit:
 				return m, func() tea.Msg {

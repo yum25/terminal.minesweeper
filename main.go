@@ -19,12 +19,13 @@ func main() {
 		defer f.Close()
 	}
 
-	err := config.LoadConfig()
+	var current config.Config
+	err := current.LoadConfig()
 	if err != nil {
-		config.Current = config.DEFAULT_CONFIG
+		current = config.DEFAULT_CONFIG
 	}
 
-	p := tea.NewProgram(tui.Model())
+	p := tea.NewProgram(tui.Model(&current))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Oops, looks like the program hit a bomb: %v", err)
 		os.Exit(1)

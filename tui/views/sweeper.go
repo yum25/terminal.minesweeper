@@ -20,14 +20,16 @@ import (
 type tickMsg time.Time
 
 type SweeperModel struct {
-	board  *game.Board
-	cursor game.Coords
+	board         *game.Board
+	cursor        game.Coords
+	currentConfig *config.Config
 }
 
-func MakeSweeperModel() SweeperModel {
+func MakeSweeperModel(currentConfig *config.Config) SweeperModel {
 	return SweeperModel{
-		board:  game.GenerateBoard(&config.Current.Board),
-		cursor: game.Coords{X: config.Current.Board.Width / 2, Y: config.Current.Board.Height / 2},
+		board:         game.GenerateBoard(&currentConfig.Board),
+		cursor:        game.Coords{X: currentConfig.Board.Width / 2, Y: currentConfig.Board.Height / 2},
+		currentConfig: currentConfig,
 	}
 }
 
@@ -53,34 +55,34 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 	case nav.Navigate:
 		switch msg.Payload {
 		case nav.Play:
-			m.board = game.GenerateBoard(&config.Current.Board)
+			m.board = game.GenerateBoard(&m.currentConfig.Board)
 		case nav.Continue:
 			return m, Tick()
 		}
 
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, config.GameKeyMap.Up):
+		case key.Matches(msg, m.currentConfig.GameControls.Up):
 			if m.cursor.Y > 0 {
 				m.cursor.Y--
 			}
-		case key.Matches(msg, config.GameKeyMap.Down):
+		case key.Matches(msg, m.currentConfig.GameControls.Down):
 			if m.cursor.Y < m.board.GetHeight()-1 {
 				m.cursor.Y++
 			}
-		case key.Matches(msg, config.GameKeyMap.Left):
+		case key.Matches(msg, m.currentConfig.GameControls.Left):
 			if m.cursor.X > 0 {
 				m.cursor.X--
 			}
-		case key.Matches(msg, config.GameKeyMap.Right):
+		case key.Matches(msg, m.currentConfig.GameControls.Right):
 			if m.cursor.X < m.board.GetWidth()-1 {
 				m.cursor.X++
 			}
 
-		case key.Matches(msg, config.GameKeyMap.Restart):
-			m.board = game.GenerateBoard(&config.Current.Board)
+		case key.Matches(msg, m.currentConfig.GameControls.Restart):
+			m.board = game.GenerateBoard(&m.currentConfig.Board)
 
-		case key.Matches(msg, config.GameKeyMap.Menu):
+		case key.Matches(msg, m.currentConfig.GameControls.Menu):
 			if m.board.IsStarted() && !m.board.IsComplete() {
 				return m, func() tea.Msg {
 					return nav.Navigate{Route: nav.Title, Payload: nav.Paused}
@@ -93,9 +95,9 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 
 		if !m.board.IsComplete() {
 			switch {
-			case key.Matches(msg, config.GameKeyMap.Flag):
+			case key.Matches(msg, m.currentConfig.GameControls.Flag):
 				m.board.SetFlag(m.cursor)
-			case key.Matches(msg, config.GameKeyMap.Select):
+			case key.Matches(msg, m.currentConfig.GameControls.Select):
 				if !m.board.IsStarted() {
 					m.board.OpenTile(m.cursor)
 					return m, Tick()
@@ -206,7 +208,7 @@ func (m SweeperModel) RenderHeader(width int) string {
 func (m SweeperModel) RenderFooter(width int) string {
 	return styles.Merge([]lipgloss.Style{
 		styles.AlignHorzCenter,
-	}).Width(width - 2).Render(config.RenderHelp(config.GameKeyMap))
+	}).Width(width - 2).Render(config.RenderHelp(m.currentConfig.GameControls))
 }
 
 func (m SweeperModel) View(width, height int) string {
