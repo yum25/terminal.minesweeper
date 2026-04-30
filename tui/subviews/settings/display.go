@@ -41,5 +41,5 @@ func (m DisplayModel) Update(msg tea.Msg) (DisplayModel, tea.Cmd) {
 }
 
 func (m DisplayModel) View(width, height int) string {
-	return ""
+	return "display"
 }

@@ -9,6 +9,7 @@ import (
 	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/nav"
 	"terminal.minesweeper/tui/styles"
+	"terminal.minesweeper/tui/subviews/settings"
 )
 
 type option = string
@@ -27,6 +28,11 @@ type SettingsModel struct {
 	focus       option
 	bindMode    bool
 	localConfig config.Config
+	// Subviews
+	GameplayView settings.GameplayModel
+	DisplayView  settings.DisplayModel
+	AudioView    settings.AudioModel
+	ControlsView settings.ControlsModel
 }
 
 func MakeSettingsModel() SettingsModel {
@@ -61,6 +67,8 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 				return m, func() tea.Msg {
 					return nav.Navigate{Route: nav.Title}
 				}
+			default:
+				m.focus = m.options[m.cursor]
 			}
 		default:
 			if len(msg.String()) == 1 && msg.String() >= "0" && msg.String() <= "5" {
@@ -111,9 +119,21 @@ func (m SettingsModel) View(width, height int) string {
 		styles.Height(min(height-lipgloss.Height(list), 25)),
 	})
 
+	var view string
+	switch m.focus {
+	case gameplay:
+		view = m.GameplayView.View(width, height)
+	case display:
+		view = m.DisplayView.View(width, height)
+	case audio:
+		view = m.AudioView.View(width, height)
+	case controls:
+		view = m.ControlsView.View(width, height)
+	}
+
 	title := lipgloss.JoinVertical(lipgloss.Center,
 		list,
-		container.Render(""),
+		container.Render(view),
 	)
 
 	return title

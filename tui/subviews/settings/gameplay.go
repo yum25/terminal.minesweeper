@@ -41,5 +41,5 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 }
 
 func (m GameplayModel) View(width, height int) string {
-	return ""
+	return "gameplay"
 }

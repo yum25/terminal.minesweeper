@@ -15,10 +15,10 @@ import (
 type route = string
 
 const (
-	play     route = "play"
-	resume   route = "continue"
-	settings route = "settings"
-	quit     route = "quit"
+	playRoute     route = "play"
+	resumeRoute   route = "continue"
+	settingsRoute route = "settings"
+	quitRoute     route = "quit"
 )
 
 type TitleModel struct {
@@ -29,7 +29,7 @@ type TitleModel struct {
 
 func MakeTitleModel() TitleModel {
 	return TitleModel{
-		paths: []route{play, settings, quit},
+		paths: []route{playRoute, settingsRoute, quitRoute},
 	}
 }
 
@@ -43,11 +43,11 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 	case nav.Navigate:
 		switch msg.Payload {
 		case nav.New:
-			m.paths = []route{play, settings, quit}
+			m.paths = []route{playRoute, settingsRoute, quitRoute}
 			m.paused = false
 		case nav.Paused:
-			m.paths = []route{play, resume, settings, quit}
-			m.cursor = slices.Index(m.paths, resume)
+			m.paths = []route{playRoute, resumeRoute, settingsRoute, quitRoute}
+			m.cursor = slices.Index(m.paths, resumeRoute)
 			m.paused = true
 		}
 
@@ -63,19 +63,19 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 			}
 		case key.Matches(msg, config.UserKeyMap.Select):
 			switch m.paths[m.cursor] {
-			case play:
+			case playRoute:
 				return m, func() tea.Msg {
 					return nav.Navigate{Route: nav.Sweeper, Payload: nav.Play}
 				}
-			case resume:
+			case resumeRoute:
 				return m, func() tea.Msg {
 					return nav.Navigate{Route: nav.Sweeper, Payload: nav.Continue}
 				}
-			case settings:
+			case settingsRoute:
 				return m, func() tea.Msg {
 					return nav.Navigate{Route: nav.Settings}
 				}
-			case quit:
+			case quitRoute:
 				return m, tea.Quit
 			}
 
@@ -86,13 +86,13 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 }
 
 func (m TitleModel) View(width, height int) string {
-	paths := []route{play, resume, settings, quit}
+	paths := []route{playRoute, resumeRoute, settingsRoute, quitRoute}
 	for i, path := range paths {
 		style := styles.OptionStyle
 		if path == m.paths[m.cursor] {
 			style = styles.SelectedOptionStyle
 		}
-		if path == resume && !m.paused {
+		if path == resumeRoute && !m.paused {
 			style = styles.DisabledOptionStyle
 		}
 		paths[i] = style.Render(path)

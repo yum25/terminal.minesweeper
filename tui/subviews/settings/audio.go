@@ -41,5 +41,5 @@ func (m AudioModel) Update(msg tea.Msg) (AudioModel, tea.Cmd) {
 }
 
 func (m AudioModel) View(width, height int) string {
-	return ""
+	return "audio"
 }
