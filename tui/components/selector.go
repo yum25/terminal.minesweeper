@@ -7,12 +7,12 @@ import (
 )
 
 type SelectorModel struct {
-	options       []string
-	cursor        int
-	currentConfig *config.Config
+	options  []string
+	cursor   int
+	controls *config.UserControlsMap
 }
 
-func MakeSelectorModel(options []string, currentConfig *config.Config) SelectorModel {
+func MakeSelectorModel(options []string, controls *config.UserControlsMap) SelectorModel {
 	return SelectorModel{options: options}
 }
 
@@ -25,15 +25,15 @@ func (m SelectorModel) Update(msg tea.Msg) (SelectorModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.currentConfig.UserControls.Up):
+		case key.Matches(msg, m.controls.Up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Down):
+		case key.Matches(msg, m.controls.Down):
 			if m.cursor < len(m.options)-1 {
 				m.cursor++
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Select):
+		case key.Matches(msg, m.controls.Select):
 
 		}
 	}

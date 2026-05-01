@@ -7,9 +7,9 @@ import (
 )
 
 type ControlsModel struct {
-	options       []string
-	cursor        int
-	currentConfig *config.Config
+	options  []string
+	cursor   int
+	controls *config.UserControlsMap
 }
 
 func MakeControlsModel(options []string, currentConfig *config.Config) ControlsModel {
@@ -25,15 +25,15 @@ func (m ControlsModel) Update(msg tea.Msg) (ControlsModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.currentConfig.UserControls.Up):
+		case key.Matches(msg, m.controls.Up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Down):
+		case key.Matches(msg, m.controls.Down):
 			if m.cursor < len(m.options)-1 {
 				m.cursor++
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Select):
+		case key.Matches(msg, m.controls.Select):
 
 		}
 	}

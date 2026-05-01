@@ -7,13 +7,19 @@ import (
 )
 
 type GameplayModel struct {
-	options       []string
-	cursor        int
-	currentConfig *config.Config
+	cursor    int
+	options   []string
+	Board     *config.BoardConfig
+	BoardType *config.BoardPreset
+	controls  *config.UserControlsMap
 }
 
-func MakeGameplayModel(options []string) GameplayModel {
-	return GameplayModel{options: options}
+func MakeGameplayModel(
+	Board *config.BoardConfig,
+	BoardType *config.BoardPreset,
+	controls *config.UserControlsMap,
+) GameplayModel {
+	return GameplayModel{Board: Board, BoardType: BoardType, controls: controls}
 }
 
 func (m GameplayModel) Init() tea.Cmd {
@@ -25,15 +31,15 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.currentConfig.UserControls.Up):
+		case key.Matches(msg, m.controls.Up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Down):
+		case key.Matches(msg, m.controls.Down):
 			if m.cursor < len(m.options)-1 {
 				m.cursor++
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Select):
+		case key.Matches(msg, m.controls.Select):
 
 		}
 	}

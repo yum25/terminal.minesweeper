@@ -18,16 +18,16 @@ type model struct {
 	width  int
 	height int
 
-	currentConfig *config.Config
+	controls *config.UserControlsMap
 }
 
 func Model(currentConfig *config.Config) model {
 	return model{
-		route:         nav.Title,
-		title:         views.MakeTitleModel(currentConfig),
-		sweeper:       views.MakeSweeperModel(currentConfig),
-		settings:      views.MakeSettingsModel(currentConfig),
-		currentConfig: currentConfig,
+		route:    nav.Title,
+		title:    views.MakeTitleModel(&currentConfig.UserControls),
+		sweeper:  views.MakeSweeperModel(&currentConfig.Board, &currentConfig.GameControls),
+		settings: views.MakeSettingsModel(currentConfig),
+		controls: &currentConfig.UserControls,
 	}
 }
 
@@ -45,7 +45,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.currentConfig.UserControls.Quit):
+		case key.Matches(msg, m.controls.Quit):
 			return m, tea.Quit
 		}
 	}

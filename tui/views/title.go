@@ -22,16 +22,16 @@ const (
 )
 
 type TitleModel struct {
-	paths         []route
-	cursor        int
-	paused        bool
-	currentConfig *config.Config
+	paths    []route
+	cursor   int
+	paused   bool
+	controls *config.UserControlsMap
 }
 
-func MakeTitleModel(currentConfig *config.Config) TitleModel {
+func MakeTitleModel(controls *config.UserControlsMap) TitleModel {
 	return TitleModel{
-		paths:         []route{playRoute, settingsRoute, quitRoute},
-		currentConfig: currentConfig,
+		paths:    []route{playRoute, settingsRoute, quitRoute},
+		controls: controls,
 	}
 }
 
@@ -55,15 +55,15 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.currentConfig.UserControls.Up):
+		case key.Matches(msg, m.controls.Up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Down):
+		case key.Matches(msg, m.controls.Down):
 			if m.cursor < len(m.paths)-1 {
 				m.cursor++
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Select):
+		case key.Matches(msg, m.controls.Select):
 			switch m.paths[m.cursor] {
 			case playRoute:
 				return m, func() tea.Msg {
@@ -111,7 +111,7 @@ func (m TitleModel) View(width, height int) string {
 		styles.AlignBottom,
 		styles.AlignHorzCenter,
 		styles.Width(width),
-	}).Render(config.RenderHelp(m.currentConfig.UserControls))
+	}).Render(config.RenderHelp(m.controls))
 
 	styles.Merge([]lipgloss.Style{
 		styles.AlignCenter,

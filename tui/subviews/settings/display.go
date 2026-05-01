@@ -7,13 +7,13 @@ import (
 )
 
 type DisplayModel struct {
-	options       []string
-	cursor        int
-	currentConfig *config.Config
+	options  []string
+	cursor   int
+	controls *config.UserControlsMap
 }
 
-func MakeDisplayModel(options []string, currentConfig *config.Config) DisplayModel {
-	return DisplayModel{options: options}
+func MakeDisplayModel(options []string, controls *config.UserControlsMap) DisplayModel {
+	return DisplayModel{options: options, controls: controls}
 }
 
 func (m DisplayModel) Init() tea.Cmd {
@@ -25,15 +25,15 @@ func (m DisplayModel) Update(msg tea.Msg) (DisplayModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
-		case key.Matches(msg, m.currentConfig.UserControls.Up):
+		case key.Matches(msg, m.controls.Up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Down):
+		case key.Matches(msg, m.controls.Down):
 			if m.cursor < len(m.options)-1 {
 				m.cursor++
 			}
-		case key.Matches(msg, m.currentConfig.UserControls.Select):
+		case key.Matches(msg, m.controls.Select):
 
 		}
 	}
