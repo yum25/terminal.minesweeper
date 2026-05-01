@@ -7,11 +7,11 @@ import (
 )
 
 type Config struct {
-	Board        BoardConfig     `json:"board"`
-	BoardType    BoardPreset     `json:"board_type"`
-	UserControls UserControlsMap `json:"user_controls"`
-	GameControls GameControlsMap `json:"game_controls"`
-	ControlType  ControlPreset   `json:"control_type"`
+	Board        BoardConfig `json:"board"`
+	BoardType    BoardPreset `json:"board_type"`
+	UserControls UserControlsMap
+	GameControls GameControlsMap
+	ControlType  ControlPreset `json:"control_type"`
 }
 
 type Stats struct {
@@ -19,6 +19,7 @@ type Stats struct {
 	GamesWon    int `json:"games_won"`
 }
 
+var DEFAULT_USERKEYMAP, DEFAULT_GAMEKEYMAP = DEFAULT_CONTROLS.ToKeyMap()
 var DEFAULT_CONFIG = Config{
 	Board: BoardConfig{
 		Width:      ADVANCED_WIDTH,
@@ -118,4 +119,33 @@ func SaveStats(stats *Stats) error {
 	}
 
 	return os.WriteFile(path, data, 0644)
+}
+
+// Hooks into standard json.Marhsal and json.Unmarshal functions
+func (c *Config) UnmarshalJSON(data []byte) error {
+	type ConfigAlias Config
+	aux := &struct {
+		RawControls Controls `json:"controls"`
+		*ConfigAlias
+	}{
+		ConfigAlias: (*ConfigAlias)(c),
+	}
+
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+
+	c.UserControls, c.GameControls = aux.RawControls.ToKeyMap()
+	return nil
+}
+
+func (c *Config) MarshalJSON() ([]byte, error) {
+	type ConfigAlias Config
+	return json.Marshal(&struct {
+		RawControls Controls `json:"controls"`
+		*ConfigAlias
+	}{
+		RawControls: c.FromKeyMap(),
+		ConfigAlias: (*ConfigAlias)(c),
+	})
 }

@@ -1,6 +1,8 @@
 package config
 
 import (
+	"strings"
+
 	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/key"
 )
@@ -12,6 +14,18 @@ const (
 	VimControls     ControlPreset = "VIM"
 	Custom          ControlPreset = "CUSTOM"
 )
+
+type Controls struct {
+	Up      []string `json:"Up"`
+	Down    []string `json:"Down"`
+	Left    []string `json:"Left"`
+	Right   []string `json:"Right"`
+	Select  []string `json:"Select"`
+	Quit    []string `json:"Quit"`
+	Flag    []string `json:"Flag"`
+	Menu    []string `json:"Menu"`
+	Restart []string `json:"Restart"`
+}
 
 type UserControlsMap struct {
 	Up     key.Binding `json:"Up"`
@@ -54,91 +68,58 @@ func RenderHelp(c ControlMap) string {
 	return help.New().View(c)
 }
 
-var DEFAULT_USERKEYMAP = UserControlsMap{
-	Up: key.NewBinding(
-		key.WithKeys("w", "up"),
-		key.WithHelp("↑/w", "move up"),
-	),
-	Down: key.NewBinding(
-		key.WithKeys("s", "down"),
-		key.WithHelp("↓/s", "move down"),
-	),
-	Left: key.NewBinding(
-		key.WithKeys("a", "left"),
-		key.WithHelp("←/a", "move left"),
-	),
-	Right: key.NewBinding(
-		key.WithKeys("d", "right"),
-		key.WithHelp("→/d", "move right"),
-	),
-	Select: key.NewBinding(
-		key.WithKeys("enter", "space"),
-		key.WithHelp("enter/space", "select"),
-	),
-	Quit: key.NewBinding(
-		key.WithKeys("q", "esc", "ctrl+c"),
-		key.WithHelp("q", "quit"),
-	),
+func FormatHelp(keys []string) string {
+	return strings.Join(keys, "/")
 }
 
-var DEFAULT_GAMEKEYMAP = GameControlsMap{
-	UserControlsMap: DEFAULT_USERKEYMAP,
-	Flag: key.NewBinding(
-		key.WithKeys("f"),
-		key.WithHelp("f", "flag"),
-	),
-	Menu: key.NewBinding(
-		key.WithKeys("m"),
-		key.WithHelp("m", "menu"),
-	),
-	Restart: key.NewBinding(
-		key.WithKeys("r"),
-		key.WithHelp("r", "restart"),
-	),
+func ToKeyBinding(keys []string, description string) key.Binding {
+	return key.NewBinding(
+		key.WithKeys(keys...),
+		key.WithHelp(FormatHelp(keys), description),
+	)
 }
 
-var VIM_USERKEYMAP = UserControlsMap{
-	Up: key.NewBinding(
-		key.WithKeys("k", "up"),
-		key.WithHelp("↑/k", "move up"),
-	),
-	Down: key.NewBinding(
-		key.WithKeys("j", "down"),
-		key.WithHelp("↓/j", "move down"),
-	),
-	Left: key.NewBinding(
-		key.WithKeys("h", "left"),
-		key.WithHelp("←/h", "move left"),
-	),
-	Right: key.NewBinding(
-		key.WithKeys("l", "right"),
-		key.WithHelp("→/l", "move right"),
-	),
-	Select: key.NewBinding(
-		key.WithKeys("enter", "space"),
-		key.WithHelp("enter/space", "select"),
-	),
-	Quit: key.NewBinding(
-		key.WithKeys("q", "esc", "ctrl+c"),
-		key.WithHelp("q", "quit"),
-	),
+func (c *Controls) ToKeyMap() (UserControlsMap, GameControlsMap) {
+	UserControls := UserControlsMap{
+		Up:     ToKeyBinding(c.Up, "move up"),
+		Down:   ToKeyBinding(c.Down, "move down"),
+		Left:   ToKeyBinding(c.Left, "move left"),
+		Right:  ToKeyBinding(c.Right, "move right"),
+		Select: ToKeyBinding(c.Select, "select"),
+		Quit:   ToKeyBinding(c.Quit, "quit"),
+	}
+	return UserControls, GameControlsMap{
+		UserControlsMap: UserControls,
+		Flag:            ToKeyBinding(c.Flag, "flag"),
+		Menu:            ToKeyBinding(c.Menu, "menu"),
+		Restart:         ToKeyBinding(c.Restart, "restart"),
+	}
 }
 
-var VIM_GAMEKEYMAP = GameControlsMap{
-	UserControlsMap: VIM_USERKEYMAP,
-	Flag: key.NewBinding(
-		key.WithKeys("f"),
-		key.WithHelp("f", "flag"),
-	),
-	Menu: key.NewBinding(
-		key.WithKeys("m"),
-		key.WithHelp("m", "menu"),
-	),
-	Restart: key.NewBinding(
-		key.WithKeys("r"),
-		key.WithHelp("r", "restart"),
-	),
+func (c Config) FromKeyMap() Controls {
+	return Controls{}
 }
 
-var UserKeyMap = DEFAULT_USERKEYMAP
-var GameKeyMap = DEFAULT_GAMEKEYMAP
+var DEFAULT_CONTROLS = Controls{
+	Up:      []string{"w", "up"},
+	Down:    []string{"s", "down"},
+	Left:    []string{"a", "left"},
+	Right:   []string{"d", "right"},
+	Select:  []string{"enter", "space"},
+	Quit:    []string{"q", "esc", "ctrl+c"},
+	Flag:    []string{"f"},
+	Menu:    []string{"m"},
+	Restart: []string{"r"},
+}
+
+var VIM_CONTROLS = Controls{
+	Up:      []string{"k", "up"},
+	Down:    []string{"j", "down"},
+	Left:    []string{"h", "left"},
+	Right:   []string{"l", "right"},
+	Select:  []string{"enter", "space"},
+	Quit:    []string{"q", "esc", "ctrl+c"},
+	Flag:    []string{"f"},
+	Menu:    []string{"m"},
+	Restart: []string{"r"},
+}
