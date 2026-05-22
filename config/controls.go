@@ -33,13 +33,13 @@ type UserControlsMap struct {
 	Left   key.Binding `json:"Left"`
 	Right  key.Binding `json:"Right"`
 	Select key.Binding `json:"Select"`
+	Menu   key.Binding `json:"Menu"`
 	Quit   key.Binding `json:"Quit"`
 }
 
 type GameControlsMap struct {
 	UserControlsMap
 	Flag    key.Binding `json:"Flag"`
-	Menu    key.Binding `json:"Menu"`
 	Restart key.Binding `json:"Restart"`
 }
 
@@ -86,12 +86,12 @@ func (c *Controls) ToKeyMap() (UserControlsMap, GameControlsMap) {
 		Left:   ToKeyBinding(c.Left, "move left"),
 		Right:  ToKeyBinding(c.Right, "move right"),
 		Select: ToKeyBinding(c.Select, "select"),
+		Menu:   ToKeyBinding(c.Menu, "menu"),
 		Quit:   ToKeyBinding(c.Quit, "quit"),
 	}
 	return UserControls, GameControlsMap{
 		UserControlsMap: UserControls,
 		Flag:            ToKeyBinding(c.Flag, "flag"),
-		Menu:            ToKeyBinding(c.Menu, "menu"),
 		Restart:         ToKeyBinding(c.Restart, "restart"),
 	}
 }

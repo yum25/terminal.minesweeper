@@ -1,6 +1,7 @@
 package views
 
 import (
+	"slices"
 	"strconv"
 
 	"charm.land/bubbles/v2/key"
@@ -19,6 +20,7 @@ const (
 	display  option = "display"
 	audio    option = "audio"
 	controls option = "controls"
+	save     option = "save"
 	exit     option = "exit"
 )
 
@@ -44,7 +46,8 @@ func MakeSettingsModel(currentConfig *config.Config) SettingsModel {
 		localConfig = config.DEFAULT_CONFIG
 	}
 	return SettingsModel{
-		options:       []string{gameplay, display, audio, controls, exit},
+		options:       []string{gameplay, display, audio, controls},
+		focus:         gameplay,
 		localConfig:   &localConfig,
 		currentConfig: currentConfig,
 	}
@@ -59,27 +62,20 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
+		case key.Matches(msg, m.localConfig.UserControls.Menu):
+			return m, func() tea.Msg {
+				return nav.Navigate{Route: nav.Title}
+			}
 		case key.Matches(msg, m.localConfig.UserControls.Up) ||
 			key.Matches(msg, m.localConfig.UserControls.Left):
-			if m.cursor > 0 {
-				m.cursor--
-			}
+			// Pass into focused
 		case key.Matches(msg, m.localConfig.UserControls.Down) ||
 			key.Matches(msg, m.localConfig.UserControls.Right):
-			if m.cursor < len(m.options)-1 {
-				m.cursor++
-			}
+			// Pass into focused
 		case key.Matches(msg, m.localConfig.UserControls.Select):
-			switch m.options[m.cursor] {
-			case exit:
-				return m, func() tea.Msg {
-					return nav.Navigate{Route: nav.Title}
-				}
-			default:
-				m.focus = m.options[m.cursor]
-			}
+			// Pass into focused
 		default:
-			if len(msg.String()) == 1 && msg.String() >= "0" && msg.String() <= "5" {
+			if len(msg.String()) == 1 && msg.String() >= "1" && msg.String() <= strconv.Itoa(len(m.options)) {
 				num, _ := strconv.Atoi(msg.String())
 
 				m.cursor = num - 1
@@ -91,35 +87,56 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 	return m, nil
 }
 
+func (m SettingsModel) RenderOption(o option) string {
+	style := styles.OptionStyle
+	if o == m.options[m.cursor] {
+		style = styles.SelectedOptionStyle
+	}
+
+	var key string
+	switch index := slices.Index(m.options, o); index {
+	case -1:
+		switch o {
+		case save:
+			key = styles.IndentStyle.Render("ctrl+s")
+		case exit:
+			key = styles.IndentStyle.Render(m.localConfig.UserControls.Menu.Keys()...)
+		}
+	default:
+		key = styles.IndentStyle.Render(strconv.Itoa(index + 1))
+	}
+
+	card := styles.Merge([]lipgloss.Style{
+		style,
+		styles.Width(
+			lipgloss.Width(o) + lipgloss.Width(key) + 3),
+	}).Render(
+		lipgloss.JoinHorizontal(lipgloss.Center,
+			o,
+			" ",
+			key,
+		),
+	)
+
+	if o == m.options[m.cursor] {
+		card = styles.AddHalfPixelBorder(card, styles.Text(styles.CursorColor))
+	}
+	card = styles.PaddingH1.Render(card)
+	return card
+}
+
 func (m SettingsModel) View(width, height int) string {
 	options := make([]string, len(m.options))
-	for i, option := range m.options {
-		style := styles.OptionStyle
-		if i == m.cursor {
-			style = styles.SelectedOptionStyle
-		}
-
-		index := styles.IndentStyle.Render(strconv.Itoa(i + 1))
-		options[i] = styles.Merge([]lipgloss.Style{
-			style,
-			styles.Width(
-				lipgloss.Width(option) + lipgloss.Width(index) + 3),
-		}).Render(
-			lipgloss.JoinHorizontal(lipgloss.Center,
-				option,
-				" ",
-				index,
-			),
-		)
-
-		if i == m.cursor {
-			options[i] = styles.AddHalfPixelBorder(options[i], styles.Text(styles.CursorColor))
-		}
-
-		options[i] = styles.PaddingH1.Render(options[i])
+	for i, o := range m.options {
+		options[i] = m.RenderOption(o)
 	}
 
 	list := lipgloss.JoinHorizontal(lipgloss.Center, options...)
+
+	footer := lipgloss.JoinHorizontal(lipgloss.Center,
+		m.RenderOption(save),
+		m.RenderOption(exit),
+	)
 
 	container := styles.Merge([]lipgloss.Style{
 		styles.BorderStyle,
@@ -142,6 +159,7 @@ func (m SettingsModel) View(width, height int) string {
 	title := lipgloss.JoinVertical(lipgloss.Center,
 		list,
 		container.Render(view),
+		footer,
 	)
 
 	return title
