@@ -121,7 +121,7 @@ func SaveStats(stats *Stats) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-// Hooks into standard json.Marhsal and json.Unmarshal functions
+// Hooks into standard json.Marshal and json.Unmarshal functions
 func (c *Config) UnmarshalJSON(data []byte) error {
 	type ConfigAlias Config
 	aux := &struct {
