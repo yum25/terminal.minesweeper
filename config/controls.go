@@ -21,9 +21,10 @@ type Controls struct {
 	Left    []string `json:"Left"`
 	Right   []string `json:"Right"`
 	Select  []string `json:"Select"`
+	Menu    []string `json:"Menu"`
+	Cancel  []string `json:"Cancel"`
 	Quit    []string `json:"Quit"`
 	Flag    []string `json:"Flag"`
-	Menu    []string `json:"Menu"`
 	Restart []string `json:"Restart"`
 }
 
@@ -34,6 +35,7 @@ type UserControlsMap struct {
 	Right  key.Binding `json:"Right"`
 	Select key.Binding `json:"Select"`
 	Menu   key.Binding `json:"Menu"`
+	Cancel key.Binding `json:"Cancel"`
 	Quit   key.Binding `json:"Quit"`
 }
 
@@ -106,6 +108,7 @@ var DEFAULT_CONTROLS = Controls{
 	Left:    []string{"a", "left"},
 	Right:   []string{"d", "right"},
 	Select:  []string{"enter", "space"},
+	Cancel:  []string{"esc"},
 	Quit:    []string{"q", "esc", "ctrl+c"},
 	Flag:    []string{"f"},
 	Menu:    []string{"m"},
@@ -118,6 +121,7 @@ var VIM_CONTROLS = Controls{
 	Left:    []string{"h", "left"},
 	Right:   []string{"l", "right"},
 	Select:  []string{"enter", "space"},
+	Cancel:  []string{"esc"},
 	Quit:    []string{"q", "esc", "ctrl+c"},
 	Flag:    []string{"f"},
 	Menu:    []string{"m"},

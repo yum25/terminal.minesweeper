@@ -4,22 +4,47 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"terminal.minesweeper/config"
+	"terminal.minesweeper/tui/components/fields"
 )
 
 type GameplayModel struct {
-	cursor    int
-	options   []string
+	focused bool
+	cursorX int
+	cursorY int
+	rows    int
+	columns int
+
 	Board     *config.BoardConfig
-	BoardType *config.BoardPreset
+	BoardType config.BoardPreset
 	controls  *config.UserControlsMap
+
+	options [][]fields.Field
 }
 
 func MakeGameplayModel(
 	Board *config.BoardConfig,
-	BoardType *config.BoardPreset,
+	BoardType config.BoardPreset,
 	controls *config.UserControlsMap,
 ) GameplayModel {
-	return GameplayModel{Board: Board, BoardType: BoardType, controls: controls}
+	return GameplayModel{
+		Board:     Board,
+		BoardType: BoardType,
+		controls:  controls,
+
+		options: [][]fields.Field{
+			{
+				fields.MakeSelectorModel(
+					string(BoardType),
+					[]string{
+						string(config.BeginnerBoard),
+						string(config.IntermediateBoard),
+						string(config.AdvancedBoard)},
+					controls,
+				),
+			},
+			{},
+		},
+	}
 }
 
 func (m GameplayModel) Init() tea.Cmd {
@@ -32,15 +57,25 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.controls.Up):
-			if m.cursor > 0 {
-				m.cursor--
+			if m.cursorY > 0 {
+				m.cursorY--
 			}
 		case key.Matches(msg, m.controls.Down):
-			if m.cursor < len(m.options)-1 {
-				m.cursor++
+			if m.cursorY < m.rows-1 {
+				m.cursorY++
+			}
+		case key.Matches(msg, m.controls.Left):
+			if m.cursorX > 0 {
+				m.cursorX--
+			}
+		case key.Matches(msg, m.controls.Right):
+			if m.cursorX < m.columns-1 {
+				m.cursorX++
 			}
 		case key.Matches(msg, m.controls.Select):
-
+			m.focused = !m.focused
+		case key.Matches(msg, m.controls.Cancel):
+			m.focused = false
 		}
 	}
 
