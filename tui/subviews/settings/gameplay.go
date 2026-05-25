@@ -39,6 +39,32 @@ func MakeGameplayModel(
 					config.AdvancedBoard},
 				controls,
 			),
+			fields.MakeSelectorModel(
+				&BoardType,
+				[]config.BoardPreset{
+					config.BeginnerBoard,
+					config.IntermediateBoard,
+					config.AdvancedBoard},
+				controls,
+			),
+		},
+		{
+			fields.MakeSelectorModel(
+				&BoardType,
+				[]config.BoardPreset{
+					config.BeginnerBoard,
+					config.IntermediateBoard,
+					config.AdvancedBoard},
+				controls,
+			),
+			fields.MakeSelectorModel(
+				&BoardType,
+				[]config.BoardPreset{
+					config.BeginnerBoard,
+					config.IntermediateBoard,
+					config.AdvancedBoard},
+				controls,
+			),
 		},
 	}
 
@@ -71,42 +97,54 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.controls.Up):
 			if m.focused {
-				update, _ := field.Update(msg)
+				update, cmd := field.Update(msg)
 				m.options[m.cursorY][m.cursorX] = update
+
+				return m, cmd
 			}
 			if m.cursorY > 0 {
 				m.cursorY--
 			}
 		case key.Matches(msg, m.controls.Down):
 			if m.focused {
-				update, _ := field.Update(msg)
+				update, cmd := field.Update(msg)
 				m.options[m.cursorY][m.cursorX] = update
+
+				return m, cmd
 			}
 			if m.cursorY < m.rows-1 {
 				m.cursorY++
 			}
 		case key.Matches(msg, m.controls.Left):
 			if m.focused {
-				update, _ := field.Update(msg)
+				update, cmd := field.Update(msg)
 				m.options[m.cursorY][m.cursorX] = update
+
+				return m, cmd
 			}
 			if m.cursorX > 0 {
 				m.cursorX--
 			}
 		case key.Matches(msg, m.controls.Right):
 			if m.focused {
-				update, _ := field.Update(msg)
+				update, cmd := field.Update(msg)
 				m.options[m.cursorY][m.cursorX] = update
+
+				return m, cmd
 			}
 			if m.cursorX < m.columns-1 {
 				m.cursorX++
 			}
 		case key.Matches(msg, m.controls.Select):
 			if m.focused {
-				update, _ := field.Update(msg)
+				update, cmd := field.Update(msg)
 				m.options[m.cursorY][m.cursorX] = update
+				m.focused = false
+
+				return m, cmd
+			} else {
+				m.focused = true
 			}
-			m.focused = !m.focused
 		case key.Matches(msg, m.controls.Cancel):
 			m.focused = false
 		}

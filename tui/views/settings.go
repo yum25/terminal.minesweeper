@@ -72,20 +72,29 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 			return m, func() tea.Msg {
 				return nav.Navigate{Route: nav.Title}
 			}
-		case key.Matches(msg, m.localConfig.UserControls.Up) ||
-			key.Matches(msg, m.localConfig.UserControls.Left):
-			// Pass into focused
-		case key.Matches(msg, m.localConfig.UserControls.Down) ||
-			key.Matches(msg, m.localConfig.UserControls.Right):
-			// Pass into focused
-		case key.Matches(msg, m.localConfig.UserControls.Select):
-			// Pass into focused
-		default:
-			if len(msg.String()) == 1 && msg.String() >= "1" && msg.String() <= strconv.Itoa(len(m.options)) {
-				num, _ := strconv.Atoi(msg.String())
+		case len(msg.String()) == 1 && msg.String() >= "1" && msg.String() <= strconv.Itoa(len(m.options)):
+			num, _ := strconv.Atoi(msg.String())
 
-				m.cursor = num - 1
-				m.focus = m.options[m.cursor]
+			m.cursor = num - 1
+			m.focus = m.options[m.cursor]
+		default:
+			switch m.focus {
+			case gameplay:
+				view, cmd := m.GameplayView.Update(msg)
+				m.GameplayView = view
+				return m, cmd
+			case display:
+				view, cmd := m.DisplayView.Update(msg)
+				m.DisplayView = view
+				return m, cmd
+			case audio:
+				view, cmd := m.AudioView.Update(msg)
+				m.AudioView = view
+				return m, cmd
+			case controls:
+				view, cmd := m.ControlsView.Update(msg)
+				m.ControlsView = view
+				return m, cmd
 			}
 		}
 	}
