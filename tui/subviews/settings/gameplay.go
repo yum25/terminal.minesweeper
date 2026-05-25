@@ -1,8 +1,11 @@
 package settings
 
 import (
+	"slices"
+
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/components/fields"
 )
@@ -26,24 +29,33 @@ func MakeGameplayModel(
 	BoardType config.BoardPreset,
 	controls *config.UserControlsMap,
 ) GameplayModel {
+	options := [][]fields.Field{
+		{
+			fields.MakeSelectorModel(
+				&BoardType,
+				[]config.BoardPreset{
+					config.BeginnerBoard,
+					config.IntermediateBoard,
+					config.AdvancedBoard},
+				controls,
+			),
+		},
+	}
+
+	colLens := make([]int, len(options))
+	for _, c := range options {
+		colLens = append(colLens, len(c))
+	}
+
 	return GameplayModel{
+		rows:    max(len(options), 1),
+		columns: max(slices.Max(colLens), 1),
+
 		Board:     Board,
 		BoardType: BoardType,
 		controls:  controls,
 
-		options: [][]fields.Field{
-			{
-				fields.MakeSelectorModel(
-					string(BoardType),
-					[]string{
-						string(config.BeginnerBoard),
-						string(config.IntermediateBoard),
-						string(config.AdvancedBoard)},
-					controls,
-				),
-			},
-			{},
-		},
+		options: options,
 	}
 }
 
@@ -83,5 +95,24 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 }
 
 func (m GameplayModel) View(width, height int) string {
-	return "gameplay"
+	fieldWidth := width / m.columns
+	fieldHeight := height / m.rows
+
+	view := make([]string, len(m.options))
+	for y, row := range m.options {
+		rowView := make([]string, len(row))
+		for x, field := range row {
+			var hover bool
+			if m.cursorY == y && m.cursorX == x {
+				hover = true
+			} else {
+				hover = false
+			}
+
+			rowView = append(rowView, field.View(fieldWidth, fieldHeight, hover && m.focused))
+		}
+		view = append(view, lipgloss.JoinHorizontal(lipgloss.Center, rowView...))
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Center, view...)
 }

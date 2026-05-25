@@ -50,6 +50,12 @@ func MakeSettingsModel(currentConfig *config.Config) SettingsModel {
 		focus:         gameplay,
 		localConfig:   &localConfig,
 		currentConfig: currentConfig,
+
+		GameplayView: settings.MakeGameplayModel(
+			&localConfig.Board,
+			localConfig.BoardType,
+			&localConfig.UserControls,
+		),
 	}
 }
 
@@ -138,22 +144,25 @@ func (m SettingsModel) View(width, height int) string {
 		m.RenderOption(exit),
 	)
 
+	containerWidth := min(width-6, 100)
+	containerHeight := min(height-lipgloss.Height(list), 25)
+
 	container := styles.Merge([]lipgloss.Style{
 		styles.BorderStyle,
-		styles.Width(min(width-6, 100)),
-		styles.Height(min(height-lipgloss.Height(list), 25)),
+		styles.Width(containerWidth),
+		styles.Height(containerHeight),
 	})
 
 	var view string
 	switch m.focus {
 	case gameplay:
-		view = m.GameplayView.View(width, height)
+		view = m.GameplayView.View(containerWidth, containerHeight)
 	case display:
-		view = m.DisplayView.View(width, height)
+		view = m.DisplayView.View(containerWidth, containerHeight)
 	case audio:
-		view = m.AudioView.View(width, height)
+		view = m.AudioView.View(containerWidth, containerHeight)
 	case controls:
-		view = m.ControlsView.View(width, height)
+		view = m.ControlsView.View(containerWidth, containerHeight)
 	}
 
 	title := lipgloss.JoinVertical(lipgloss.Center,
