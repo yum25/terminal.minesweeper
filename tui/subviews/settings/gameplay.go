@@ -67,24 +67,45 @@ func (m GameplayModel) Init() tea.Cmd {
 func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
+		field := m.options[m.cursorY][m.cursorX]
 		switch {
 		case key.Matches(msg, m.controls.Up):
+			if m.focused {
+				update, _ := field.Update(msg)
+				m.options[m.cursorY][m.cursorX] = update
+			}
 			if m.cursorY > 0 {
 				m.cursorY--
 			}
 		case key.Matches(msg, m.controls.Down):
+			if m.focused {
+				update, _ := field.Update(msg)
+				m.options[m.cursorY][m.cursorX] = update
+			}
 			if m.cursorY < m.rows-1 {
 				m.cursorY++
 			}
 		case key.Matches(msg, m.controls.Left):
+			if m.focused {
+				update, _ := field.Update(msg)
+				m.options[m.cursorY][m.cursorX] = update
+			}
 			if m.cursorX > 0 {
 				m.cursorX--
 			}
 		case key.Matches(msg, m.controls.Right):
+			if m.focused {
+				update, _ := field.Update(msg)
+				m.options[m.cursorY][m.cursorX] = update
+			}
 			if m.cursorX < m.columns-1 {
 				m.cursorX++
 			}
 		case key.Matches(msg, m.controls.Select):
+			if m.focused {
+				update, _ := field.Update(msg)
+				m.options[m.cursorY][m.cursorX] = update
+			}
 			m.focused = !m.focused
 		case key.Matches(msg, m.controls.Cancel):
 			m.focused = false
@@ -109,7 +130,16 @@ func (m GameplayModel) View(width, height int) string {
 				hover = false
 			}
 
-			rowView = append(rowView, field.View(fieldWidth, fieldHeight, hover && m.focused))
+			var state fields.State
+			if !hover {
+				state = fields.Unfocused
+			} else if hover && m.focused {
+				state = fields.Focused
+			} else {
+				state = fields.Hover
+			}
+
+			rowView = append(rowView, field.View(fieldWidth, fieldHeight, state))
 		}
 		view = append(view, lipgloss.JoinHorizontal(lipgloss.Center, rowView...))
 	}

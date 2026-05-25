@@ -30,6 +30,7 @@ var (
 var (
 	OptionStyle         = Merge([]lipgloss.Style{AlignCenter, Width(10)})
 	DisabledOptionStyle = Merge([]lipgloss.Style{OptionStyle, Text(Gray), Highlight(Darkgray)})
+	HoveredOptionStyle  = Merge([]lipgloss.Style{OptionStyle, Text(Black), Highlight(White), Bold})
 	SelectedOptionStyle = Merge([]lipgloss.Style{OptionStyle, Text(Black), Highlight(CursorColor), Bold})
 	IconStyle           = Merge([]lipgloss.Style{Highlight(Green), PaddingH1})
 	ListStyle           = Padding1

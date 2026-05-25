@@ -145,7 +145,7 @@ func (m SettingsModel) View(width, height int) string {
 	)
 
 	containerWidth := min(width-6, 100)
-	containerHeight := min(height-lipgloss.Height(list), 25)
+	containerHeight := min(height, 25)
 
 	container := styles.Merge([]lipgloss.Style{
 		styles.BorderStyle,
@@ -153,16 +153,19 @@ func (m SettingsModel) View(width, height int) string {
 		styles.Height(containerHeight),
 	})
 
+	innerWidth := containerWidth - 2
+	innerHeight := containerHeight - 3
+
 	var view string
 	switch m.focus {
 	case gameplay:
-		view = m.GameplayView.View(containerWidth, containerHeight)
+		view = m.GameplayView.View(innerWidth, innerHeight)
 	case display:
-		view = m.DisplayView.View(containerWidth, containerHeight)
+		view = m.DisplayView.View(innerWidth, innerHeight)
 	case audio:
-		view = m.AudioView.View(containerWidth, containerHeight)
+		view = m.AudioView.View(innerWidth, innerHeight)
 	case controls:
-		view = m.ControlsView.View(containerWidth, containerHeight)
+		view = m.ControlsView.View(innerWidth, innerHeight)
 	}
 
 	title := lipgloss.JoinVertical(lipgloss.Center,

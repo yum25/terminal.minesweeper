@@ -51,9 +51,14 @@ func (m SelectorModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 	return m, nil
 }
 
-func (m SelectorModel[T]) View(width, height int, focused bool) string {
-	option := styles.OptionStyle.Render(toString(*m.value))
-	if focused {
+func (m SelectorModel[T]) View(width, height int, state State) string {
+	var option string
+	switch state {
+	case Unfocused:
+		option = styles.OptionStyle.Render(toString(*m.value))
+	case Hover:
+		option = styles.HoveredOptionStyle.Render(toString(m.options[m.cursor]))
+	case Focused:
 		option = styles.SelectedOptionStyle.Render(toString(m.options[m.cursor]))
 	}
 

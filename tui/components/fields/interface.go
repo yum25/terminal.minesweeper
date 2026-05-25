@@ -8,9 +8,17 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
+type State int
+
+const (
+	Unfocused State = iota
+	Hover
+	Focused
+)
+
 type Field interface {
 	Update(tea.Msg) (Field, tea.Cmd)
-	View(width, height int, focused bool) string
+	View(width, height int, state State) string
 }
 
 func toString[T any](v T) string {
