@@ -9,23 +9,27 @@ import (
 	"terminal.minesweeper/tui/styles"
 )
 
-type SelectorModel struct {
-	value    string
-	options  []string
+type SelectorModel[T any] struct {
+	value    *T
+	options  []T
 	cursor   int
 	controls *config.UserControlsMap
 }
 
-func MakeSelectorModel(value string, options []string, controls *config.UserControlsMap) SelectorModel {
-	return SelectorModel{value: value, options: options}
+func MakeSelectorModel[T any](
+	value *T,
+	options []T,
+	controls *config.UserControlsMap,
+) SelectorModel[T] {
+	return SelectorModel[T]{value: value, options: options}
 }
 
-func (m SelectorModel) Init() tea.Cmd {
+func (m SelectorModel[T]) Init() tea.Cmd {
 	// Just return `nil`, which means "no I/O right now, please."
 	return nil
 }
 
-func (m SelectorModel) Update(msg tea.Msg) (Field, tea.Cmd) {
+func (m SelectorModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
@@ -40,21 +44,27 @@ func (m SelectorModel) Update(msg tea.Msg) (Field, tea.Cmd) {
 				m.cursor = 0
 			}
 		case key.Matches(msg, m.controls.Select):
-			m.value = m.options[m.cursor]
+			*m.value = m.options[m.cursor]
 		}
 	}
 
 	return m, nil
 }
 
-func (m SelectorModel) View(width, height int, focused bool) string {
-	option := styles.OptionStyle.Render(m.value)
+func (m SelectorModel[T]) View(width, height int, focused bool) string {
+	option := styles.OptionStyle.Render(toString(*m.value))
 	if focused {
-		option = styles.SelectedOptionStyle.Render(m.options[m.cursor])
+		option = styles.SelectedOptionStyle.Render(toString(m.options[m.cursor]))
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Center,
-		constants.ArrowLeftSymbol,
-		option,
-		constants.ArrowRightSymbol)
+	return styles.Merge([]lipgloss.Style{
+		styles.Width(width),
+		styles.Height(height),
+		styles.AlignCenter,
+	}).Render(
+		lipgloss.JoinHorizontal(lipgloss.Center,
+			constants.ArrowLeftSymbol,
+			option,
+			constants.ArrowRightSymbol),
+	)
 }
