@@ -61,15 +61,30 @@ func (m SelectorModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 }
 
 func (m SelectorModel[T]) View(width, height int, state State) string {
-	var option string
+	valWidth := 0
+	for _, option := range m.options {
+		localWidth := lipgloss.Width(toString(option)) + 2
+		if localWidth > valWidth {
+			valWidth = localWidth
+		}
+	}
+	var style lipgloss.Style
+	var val string
 	switch state {
 	case Unfocused:
-		option = styles.OptionStyle.Render(toString(*m.value))
+		style = styles.OptionStyle
+		val = toString(*m.value)
 	case Hover:
-		option = styles.HoveredOptionStyle.Render(toString(*m.value))
+		style = styles.HoveredOptionStyle
+		val = toString(*m.value)
 	case Focused:
-		option = styles.SelectedOptionStyle.Render(toString(m.options[m.cursor]))
+		style = styles.SelectedOptionStyle
+		val = toString(m.options[m.cursor])
 	}
+	option := styles.Merge([]lipgloss.Style{
+		style,
+		styles.Width(valWidth)},
+	).Render(val)
 
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),
