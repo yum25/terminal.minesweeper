@@ -12,8 +12,8 @@ type ControlsModel struct {
 	controls *config.UserControlsMap
 }
 
-func MakeControlsModel(options []string, currentConfig *config.Config) ControlsModel {
-	return ControlsModel{options: options}
+func MakeControlsModel(controls *config.GameControlsMap) ControlsModel {
+	return ControlsModel{controls: &controls.UserControlsMap}
 }
 
 func (m ControlsModel) Init() tea.Cmd {
@@ -26,15 +26,8 @@ func (m ControlsModel) Update(msg tea.Msg) (ControlsModel, tea.Cmd) {
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.controls.Up):
-			if m.cursor > 0 {
-				m.cursor--
-			}
 		case key.Matches(msg, m.controls.Down):
-			if m.cursor < len(m.options)-1 {
-				m.cursor++
-			}
 		case key.Matches(msg, m.controls.Select):
-
 		}
 	}
 

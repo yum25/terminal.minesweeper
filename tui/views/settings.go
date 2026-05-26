@@ -56,6 +56,16 @@ func MakeSettingsModel(currentConfig *config.Config) SettingsModel {
 			localConfig.BoardType,
 			&localConfig.UserControls,
 		),
+		DisplayView: settings.MakeDisplayModel(
+			&localConfig.UserControls,
+		),
+		AudioView: settings.MakeAudioModel(
+
+			&localConfig.UserControls,
+		),
+		ControlsView: settings.MakeControlsModel(
+			&localConfig.GameControls,
+		),
 	}
 }
 
