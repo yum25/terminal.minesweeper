@@ -60,7 +60,6 @@ func MakeSettingsModel(currentConfig *config.Config) SettingsModel {
 			&localConfig.UserControls,
 		),
 		AudioView: settings.MakeAudioModel(
-
 			&localConfig.UserControls,
 		),
 		ControlsView: settings.MakeControlsModel(

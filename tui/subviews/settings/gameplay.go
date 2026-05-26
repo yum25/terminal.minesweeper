@@ -79,7 +79,6 @@ func MakeGameplayModel(
 	}
 
 	return GameplayModel{
-
 		Board:     Board,
 		BoardType: BoardType,
 		controls:  controls,
@@ -180,7 +179,12 @@ func (m GameplayModel) View(width, height int) string {
 		view = append(view, lipgloss.JoinHorizontal(lipgloss.Center, rowView...))
 	}
 
-	settings := lipgloss.JoinVertical(lipgloss.Center, view...)
+	settings := styles.Merge([]lipgloss.Style{
+		styles.Width(containerWidth),
+		styles.Height(height),
+		styles.AlignCenter,
+	}).Render(lipgloss.JoinVertical(lipgloss.Center, view...))
+
 	preview := styles.Merge([]lipgloss.Style{
 		styles.Width(containerWidth),
 		styles.Height(height),

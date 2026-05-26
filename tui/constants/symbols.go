@@ -9,8 +9,8 @@ const (
 	MineHitSymbol    = "✸"
 	HeartSymbol      = "▝▞ "
 	HeartLostSymbol  = " • "
-	ArrowLeftSymbol  = "《"
-	ArrowRightSymbol = "》"
+	ArrowLeftSymbol  = "◀"
+	ArrowRightSymbol = "▶"
 )
 
 var HeartLostAnimation = [3]string{"▝▞ ", " ■ ", " • "}

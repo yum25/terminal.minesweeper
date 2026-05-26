@@ -103,6 +103,7 @@ func (m SelectorModel[T]) View(width, height int, state State) string {
 		lipgloss.JoinHorizontal(lipgloss.Center,
 			constants.ArrowLeftSymbol,
 			option,
-			constants.ArrowRightSymbol),
+			constants.ArrowRightSymbol,
+		),
 	)
 }
