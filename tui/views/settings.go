@@ -135,7 +135,10 @@ func (m SettingsModel) RenderOption(o option) string {
 
 	if o == m.options[m.cursor] {
 		card = styles.AddHalfPixelBorder(card, styles.Text(styles.CursorColor))
+	} else {
+		card = styles.PaddingV1.Render(card)
 	}
+
 	card = styles.PaddingH1.Render(card)
 	return card
 }
@@ -163,7 +166,7 @@ func (m SettingsModel) View(width, height int) string {
 	})
 
 	innerWidth := containerWidth - 2
-	innerHeight := containerHeight - 3
+	innerHeight := containerHeight - 2
 
 	var view string
 	switch m.focus {

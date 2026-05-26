@@ -3,7 +3,9 @@ package settings
 import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/config"
+	"terminal.minesweeper/tui/styles"
 )
 
 type AudioModel struct {
@@ -42,5 +44,9 @@ func (m AudioModel) Update(msg tea.Msg) (AudioModel, tea.Cmd) {
 }
 
 func (m AudioModel) View(width, height int) string {
-	return "audio"
+	return styles.Merge([]lipgloss.Style{
+		styles.Width(width),
+		styles.Height(height),
+		styles.AlignCenter,
+	}).Render("Coming soon!")
 }

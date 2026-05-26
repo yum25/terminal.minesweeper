@@ -3,7 +3,9 @@ package settings
 import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/config"
+	"terminal.minesweeper/tui/styles"
 )
 
 type DisplayModel struct {
@@ -42,5 +44,10 @@ func (m DisplayModel) Update(msg tea.Msg) (DisplayModel, tea.Cmd) {
 }
 
 func (m DisplayModel) View(width, height int) string {
-	return "display"
+
+	return styles.Merge([]lipgloss.Style{
+		styles.Width(width),
+		styles.Height(height),
+		styles.AlignCenter,
+	}).Render("Coming soon!")
 }

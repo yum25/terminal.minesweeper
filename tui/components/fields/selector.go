@@ -1,7 +1,6 @@
 package fields
 
 import (
-	"log"
 	"slices"
 
 	"charm.land/bubbles/v2/key"
@@ -43,9 +42,7 @@ func (m SelectorModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.controls.Left):
 			if m.cursor > 0 {
-				log.Print(m.cursor)
 				m.cursor--
-				log.Print(m.cursor)
 			} else {
 				m.cursor = len(m.options) - 1
 			}

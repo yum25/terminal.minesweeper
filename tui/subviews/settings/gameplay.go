@@ -8,6 +8,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/components/fields"
+	"terminal.minesweeper/tui/styles"
 )
 
 type GameplayModel struct {
@@ -31,32 +32,6 @@ func MakeGameplayModel(
 ) GameplayModel {
 	options := [][]fields.Field{
 		{
-			fields.MakeSelectorModel(
-				&BoardType,
-				[]config.BoardPreset{
-					config.BeginnerBoard,
-					config.IntermediateBoard,
-					config.AdvancedBoard},
-				controls,
-			),
-			fields.MakeSelectorModel(
-				&BoardType,
-				[]config.BoardPreset{
-					config.BeginnerBoard,
-					config.IntermediateBoard,
-					config.AdvancedBoard},
-				controls,
-			),
-		},
-		{
-			fields.MakeSelectorModel(
-				&BoardType,
-				[]config.BoardPreset{
-					config.BeginnerBoard,
-					config.IntermediateBoard,
-					config.AdvancedBoard},
-				controls,
-			),
 			fields.MakeSelectorModel(
 				&BoardType,
 				[]config.BoardPreset{
@@ -154,8 +129,8 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 }
 
 func (m GameplayModel) View(width, height int) string {
-	fieldWidth := width / m.columns
-	fieldHeight := height / m.rows
+	fieldWidth := (width / m.columns) - 1
+	fieldHeight := (height / m.rows) - 1
 
 	view := make([]string, len(m.options))
 	for y, row := range m.options {
@@ -182,5 +157,11 @@ func (m GameplayModel) View(width, height int) string {
 		view = append(view, lipgloss.JoinHorizontal(lipgloss.Center, rowView...))
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Center, view...)
+	return styles.Merge([]lipgloss.Style{
+		styles.Width(width),
+		styles.Height(height),
+		styles.AlignCenter,
+	}).Render(
+		lipgloss.JoinVertical(lipgloss.Center, view...),
+	)
 }
