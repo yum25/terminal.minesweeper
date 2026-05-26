@@ -89,6 +89,7 @@ func (c *Controls) ToKeyMap() (UserControlsMap, GameControlsMap) {
 		Right:  ToKeyBinding(c.Right, "move right"),
 		Select: ToKeyBinding(c.Select, "select"),
 		Menu:   ToKeyBinding(c.Menu, "menu"),
+		Cancel: ToKeyBinding(c.Cancel, "cancel"),
 		Quit:   ToKeyBinding(c.Quit, "quit"),
 	}
 	return UserControls, GameControlsMap{
@@ -109,7 +110,7 @@ var DEFAULT_CONTROLS = Controls{
 	Right:   []string{"d", "right"},
 	Select:  []string{"enter", "space"},
 	Cancel:  []string{"esc"},
-	Quit:    []string{"q", "esc", "ctrl+c"},
+	Quit:    []string{"q", "ctrl+c"},
 	Flag:    []string{"f"},
 	Menu:    []string{"m"},
 	Restart: []string{"r"},
