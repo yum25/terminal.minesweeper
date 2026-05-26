@@ -12,23 +12,32 @@ import (
 )
 
 type SelectorModel[T comparable] struct {
+	name     string
 	value    *T
+	prev     T
 	options  []T
 	cursor   int
 	controls *config.UserControlsMap
 }
 
 func MakeSelectorModel[T comparable](
+	name string,
 	value *T,
 	options []T,
 	controls *config.UserControlsMap,
 ) SelectorModel[T] {
 	return SelectorModel[T]{
+		name:     name,
 		value:    value,
+		prev:     *value,
 		options:  options,
 		cursor:   slices.Index(options, *value),
 		controls: controls,
 	}
+}
+
+func (m SelectorModel[T]) GetName() string {
+	return m.name
 }
 
 func (m SelectorModel[T]) Init() tea.Cmd {
@@ -46,14 +55,18 @@ func (m SelectorModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 			} else {
 				m.cursor = len(m.options) - 1
 			}
+			*m.value = m.options[m.cursor]
 		case key.Matches(msg, m.controls.Right):
 			if m.cursor < len(m.options)-1 {
 				m.cursor++
 			} else {
 				m.cursor = 0
 			}
-		case key.Matches(msg, m.controls.Select):
 			*m.value = m.options[m.cursor]
+		case key.Matches(msg, m.controls.Select):
+			m.prev = *m.value
+		case key.Matches(msg, m.controls.Cancel):
+			*m.value = m.prev
 		}
 	}
 
@@ -69,22 +82,18 @@ func (m SelectorModel[T]) View(width, height int, state State) string {
 		}
 	}
 	var style lipgloss.Style
-	var val string
 	switch state {
 	case Unfocused:
 		style = styles.OptionStyle
-		val = toString(*m.value)
 	case Hover:
 		style = styles.HoveredOptionStyle
-		val = toString(*m.value)
 	case Focused:
 		style = styles.SelectedOptionStyle
-		val = toString(m.options[m.cursor])
 	}
 	option := styles.Merge([]lipgloss.Style{
 		style,
 		styles.Width(valWidth)},
-	).Render(val)
+	).Render(toString(*m.value))
 
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),

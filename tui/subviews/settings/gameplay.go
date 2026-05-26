@@ -1,8 +1,6 @@
 package settings
 
 import (
-	"slices"
-
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -11,12 +9,20 @@ import (
 	"terminal.minesweeper/tui/styles"
 )
 
+type selector = string
+
+const (
+	PresetSelector selector = "PresetSelector"
+	LivesSelector  selector = "LivesSelector"
+	WidthSelector  selector = "WidthSelector"
+	HeightSelector selector = "HeightSelector"
+	MineSelector   selector = "MineSelector"
+)
+
 type GameplayModel struct {
 	focused bool
 	cursorX int
 	cursorY int
-	rows    int
-	columns int
 
 	Board     *config.BoardConfig
 	BoardType config.BoardPreset
@@ -33,6 +39,7 @@ func MakeGameplayModel(
 	options := [][]fields.Field{
 		{
 			fields.MakeSelectorModel(
+				PresetSelector,
 				&BoardType,
 				[]config.BoardPreset{
 					config.BeginnerBoard,
@@ -41,16 +48,37 @@ func MakeGameplayModel(
 				controls,
 			),
 		},
-	}
-
-	colLens := make([]int, len(options))
-	for _, c := range options {
-		colLens = append(colLens, len(c))
+		{
+			fields.MakeInputModel(
+				LivesSelector,
+				&Board.LivesCount,
+				"Lives",
+				controls,
+			),
+			fields.MakeInputModel(
+				MineSelector,
+				&Board.MineCount,
+				"Mines",
+				controls,
+			),
+		},
+		{
+			fields.MakeInputModel(
+				WidthSelector,
+				&Board.Width,
+				"Width",
+				controls,
+			),
+			fields.MakeInputModel(
+				HeightSelector,
+				&Board.Height,
+				"Height",
+				controls,
+			),
+		},
 	}
 
 	return GameplayModel{
-		rows:    max(len(options), 1),
-		columns: max(slices.Max(colLens), 1),
 
 		Board:     Board,
 		BoardType: BoardType,
@@ -69,57 +97,50 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		field := m.options[m.cursorY][m.cursorX]
+
+		if m.focused {
+			update, cmd := field.Update(msg)
+			m.options[m.cursorY][m.cursorX] = update
+
+			switch {
+			case key.Matches(msg, m.controls.Select):
+				m.focused = false
+			case key.Matches(msg, m.controls.Cancel):
+				m.focused = false
+			}
+
+			// Side effects
+			switch m.BoardType {
+			case config.BeginnerBoard:
+			case config.IntermediateBoard:
+			case config.AdvancedBoard:
+			case config.CustomBoard:
+			}
+
+			return m, cmd
+		}
+
 		switch {
 		case key.Matches(msg, m.controls.Up):
-			if m.focused {
-				update, cmd := field.Update(msg)
-				m.options[m.cursorY][m.cursorX] = update
-
-				return m, cmd
-			}
 			if m.cursorY > 0 {
 				m.cursorY--
 			}
+			m.cursorX = min(len(m.options[m.cursorY])-1, m.cursorX)
 		case key.Matches(msg, m.controls.Down):
-			if m.focused {
-				update, cmd := field.Update(msg)
-				m.options[m.cursorY][m.cursorX] = update
-
-				return m, cmd
-			}
-			if m.cursorY < m.rows-1 {
+			if m.cursorY < len(m.options)-1 {
 				m.cursorY++
 			}
+			m.cursorX = min(len(m.options[m.cursorY])-1, m.cursorX)
 		case key.Matches(msg, m.controls.Left):
-			if m.focused {
-				update, cmd := field.Update(msg)
-				m.options[m.cursorY][m.cursorX] = update
-
-				return m, cmd
-			}
 			if m.cursorX > 0 {
 				m.cursorX--
 			}
 		case key.Matches(msg, m.controls.Right):
-			if m.focused {
-				update, cmd := field.Update(msg)
-				m.options[m.cursorY][m.cursorX] = update
-
-				return m, cmd
-			}
-			if m.cursorX < m.columns-1 {
+			if m.cursorX < len(m.options[m.cursorY])-1 {
 				m.cursorX++
 			}
 		case key.Matches(msg, m.controls.Select):
-			if m.focused {
-				update, cmd := field.Update(msg)
-				m.options[m.cursorY][m.cursorX] = update
-				m.focused = false
-
-				return m, cmd
-			} else {
-				m.focused = true
-			}
+			m.focused = true
 		case key.Matches(msg, m.controls.Cancel):
 			m.focused = false
 		}
@@ -129,12 +150,14 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 }
 
 func (m GameplayModel) View(width, height int) string {
-	fieldWidth := (width / m.columns) - 1
-	fieldHeight := (height / m.rows) - 1
+	containerWidth := width / 2
+	fieldHeight := (height / len(m.options)) - 1
 
 	view := make([]string, len(m.options))
 	for y, row := range m.options {
+		fieldWidth := (containerWidth / len(row)) - 1
 		rowView := make([]string, len(row))
+
 		for x, field := range row {
 			var hover bool
 			if m.cursorY == y && m.cursorX == x {
@@ -157,11 +180,18 @@ func (m GameplayModel) View(width, height int) string {
 		view = append(view, lipgloss.JoinHorizontal(lipgloss.Center, rowView...))
 	}
 
+	settings := lipgloss.JoinVertical(lipgloss.Center, view...)
+	preview := styles.Merge([]lipgloss.Style{
+		styles.Width(containerWidth),
+		styles.Height(height),
+		styles.AlignCenter,
+	}).Render("preview")
+
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),
 		styles.Height(height),
 		styles.AlignCenter,
 	}).Render(
-		lipgloss.JoinVertical(lipgloss.Center, view...),
+		lipgloss.JoinHorizontal(lipgloss.Center, settings, preview),
 	)
 }

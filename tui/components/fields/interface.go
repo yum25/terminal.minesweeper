@@ -17,12 +17,13 @@ const (
 )
 
 type Field interface {
+	GetName() string
+	Init() tea.Cmd
 	Update(tea.Msg) (Field, tea.Cmd)
 	View(width, height int, state State) string
 }
 
-func toString[T any](v T) string {
-
+func toString[T comparable](v T) string {
 	val := reflect.ValueOf(v)
 	switch val.Kind() {
 	case reflect.String:
