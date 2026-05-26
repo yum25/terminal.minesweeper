@@ -11,9 +11,8 @@ const (
 	HeartLostSymbol  = " • "
 	ArrowLeftSymbol  = "◀"
 	ArrowRightSymbol = "▶"
+	HalfPixelTop     = "▀"
+	HalfPixelBottom  = "▄"
 )
 
 var HeartLostAnimation = [3]string{"▝▞ ", " ■ ", " • "}
-
-var HalfPixelTop = "▀"
-var HalfPixelBottom = "▄"

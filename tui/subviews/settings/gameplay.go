@@ -6,6 +6,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/components/fields"
+	"terminal.minesweeper/tui/components/ui"
 	"terminal.minesweeper/tui/styles"
 )
 
@@ -25,7 +26,7 @@ type GameplayModel struct {
 	cursorY int
 
 	Board     *config.BoardConfig
-	BoardType config.BoardPreset
+	BoardType *config.BoardPreset
 	controls  *config.UserControlsMap
 
 	options [][]fields.Field
@@ -33,14 +34,14 @@ type GameplayModel struct {
 
 func MakeGameplayModel(
 	Board *config.BoardConfig,
-	BoardType config.BoardPreset,
+	BoardType *config.BoardPreset,
 	controls *config.UserControlsMap,
 ) GameplayModel {
 	options := [][]fields.Field{
 		{
 			fields.MakeSelectorModel(
 				PresetSelector,
-				&BoardType,
+				BoardType,
 				[]config.BoardPreset{
 					config.BeginnerBoard,
 					config.IntermediateBoard,
@@ -109,10 +110,22 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 			}
 
 			// Side effects
-			switch m.BoardType {
+			switch *m.BoardType {
 			case config.BeginnerBoard:
+				m.Board.Width = config.BEGINNER_WIDTH
+				m.Board.Height = config.BEGINNER_HEIGHT
+				m.Board.MineCount = config.BEGINNER_MINE_COUNT
+
 			case config.IntermediateBoard:
+				m.Board.Width = config.INTERMEDIATE_WIDTH
+				m.Board.Height = config.INTERMEDIATE_HEIGHT
+				m.Board.MineCount = config.INTERMEDIATE_MINE_COUNT
+
 			case config.AdvancedBoard:
+				m.Board.Width = config.ADVANCED_WIDTH
+				m.Board.Height = config.ADVANCED_HEIGHT
+				m.Board.MineCount = config.ADVANCED_MINE_COUNT
+
 			case config.CustomBoard:
 			}
 
@@ -189,7 +202,7 @@ func (m GameplayModel) View(width, height int) string {
 		styles.Width(containerWidth),
 		styles.Height(height),
 		styles.AlignCenter,
-	}).Render("preview")
+	}).Render(ui.RenderPreview(m.Board))
 
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),

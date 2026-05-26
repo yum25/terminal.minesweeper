@@ -53,7 +53,7 @@ func MakeSettingsModel(currentConfig *config.Config) SettingsModel {
 
 		GameplayView: settings.MakeGameplayModel(
 			&localConfig.Board,
-			localConfig.BoardType,
+			&localConfig.BoardType,
 			&localConfig.UserControls,
 		),
 		DisplayView: settings.MakeDisplayModel(
