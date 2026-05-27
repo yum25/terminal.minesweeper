@@ -122,7 +122,7 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 		case key.Matches(msg, m.localConfig.UserControls.Select):
 			if m.bindMode {
 				view, cmd := m.UpdateSubview(msg)
-				m.bindMode = false
+				view.bindMode = false
 
 				return view, cmd
 			} else {
