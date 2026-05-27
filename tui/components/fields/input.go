@@ -24,6 +24,7 @@ func MakeInputModel[T comparable](
 	return InputModel[T]{
 		name:     name,
 		value:    value,
+		prev:     *value,
 		label:    label,
 		controls: controls,
 	}
