@@ -73,38 +73,72 @@ func (m SettingsModel) Init() tea.Cmd {
 	return nil
 }
 
+func (m *SettingsModel) UpdateSubview(msg tea.Msg) (SettingsModel, tea.Cmd) {
+	switch m.focus {
+	case gameplay:
+		view, cmd := m.GameplayView.Update(msg, m.bindMode)
+		m.GameplayView = view
+		return *m, cmd
+	case display:
+		view, cmd := m.DisplayView.Update(msg, m.bindMode)
+		m.DisplayView = view
+		return *m, cmd
+	case audio:
+		view, cmd := m.AudioView.Update(msg, m.bindMode)
+		m.AudioView = view
+		return *m, cmd
+	case controls:
+		view, cmd := m.ControlsView.Update(msg, m.bindMode)
+		m.ControlsView = view
+		return *m, cmd
+	}
+
+	return *m, nil
+}
+
 func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.localConfig.UserControls.Menu):
+			if m.bindMode {
+				view, cmd := m.UpdateSubview(msg)
+				return view, cmd
+			}
+
 			return m, func() tea.Msg {
 				return nav.Navigate{Route: nav.Title}
 			}
 		case len(msg.String()) == 1 && msg.String() >= "1" && msg.String() <= strconv.Itoa(len(m.options)):
+			if m.bindMode {
+				view, cmd := m.UpdateSubview(msg)
+				return view, cmd
+			}
+
 			num, _ := strconv.Atoi(msg.String())
 
 			m.cursor = num - 1
 			m.focus = m.options[m.cursor]
-		default:
-			switch m.focus {
-			case gameplay:
-				view, cmd := m.GameplayView.Update(msg)
-				m.GameplayView = view
-				return m, cmd
-			case display:
-				view, cmd := m.DisplayView.Update(msg)
-				m.DisplayView = view
-				return m, cmd
-			case audio:
-				view, cmd := m.AudioView.Update(msg)
-				m.AudioView = view
-				return m, cmd
-			case controls:
-				view, cmd := m.ControlsView.Update(msg)
-				m.ControlsView = view
-				return m, cmd
+		case key.Matches(msg, m.localConfig.UserControls.Select):
+			if m.bindMode {
+				view, cmd := m.UpdateSubview(msg)
+				m.bindMode = false
+
+				return view, cmd
+			} else {
+				m.bindMode = true
 			}
+		case key.Matches(msg, m.localConfig.UserControls.Cancel):
+			m.bindMode = false
+		case key.Matches(msg, m.currentConfig.UserControls.Quit):
+			if m.bindMode {
+				view, cmd := m.UpdateSubview(msg)
+				return view, cmd
+			}
+
+			return m, tea.Quit
+		default:
+			m.UpdateSubview(msg)
 		}
 	}
 
@@ -180,13 +214,13 @@ func (m SettingsModel) View(width, height int) string {
 	var view string
 	switch m.focus {
 	case gameplay:
-		view = m.GameplayView.View(innerWidth, innerHeight)
+		view = m.GameplayView.View(innerWidth, innerHeight, m.bindMode)
 	case display:
-		view = m.DisplayView.View(innerWidth, innerHeight)
+		view = m.DisplayView.View(innerWidth, innerHeight, m.bindMode)
 	case audio:
-		view = m.AudioView.View(innerWidth, innerHeight)
+		view = m.AudioView.View(innerWidth, innerHeight, m.bindMode)
 	case controls:
-		view = m.ControlsView.View(innerWidth, innerHeight)
+		view = m.ControlsView.View(innerWidth, innerHeight, m.bindMode)
 	}
 
 	title := lipgloss.JoinVertical(lipgloss.Center,

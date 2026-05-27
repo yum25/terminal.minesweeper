@@ -11,7 +11,7 @@ import (
 type InputModel[T comparable] struct {
 	name     string
 	value    *T
-	buffer   T
+	prev     T
 	label    string
 	controls *config.UserControlsMap
 }
@@ -42,9 +42,14 @@ func (m InputModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
+		case msg.String() == "backspace":
+			*m.value = truncate(*m.value)
 		case key.Matches(msg, m.controls.Select):
-			*m.value = m.buffer
+			m.prev = *m.value
+		case key.Matches(msg, m.controls.Cancel):
+			*m.value = m.prev
 		default:
+			*m.value = appendTo(*m.value, msg.String())
 		}
 	}
 
@@ -52,25 +57,47 @@ func (m InputModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 }
 
 func (m InputModel[T]) View(width, height int, state State) string {
+	// TODO: Refactor UI logic into a single card interface that uses same
+	// logic as subview setting cards
 	var style lipgloss.Style
-	var val string
 
 	switch state {
 	case Unfocused:
 		style = styles.OptionStyle
-		val = toString(*m.value)
 	case Hover:
 		style = styles.HoveredOptionStyle
-		val = toString(*m.value)
 	case Focused:
 		style = styles.SelectedOptionStyle
-		val = toString(m.buffer)
 	}
 
-	input := lipgloss.JoinHorizontal(lipgloss.Center,
-		style.Render(m.label),
-		styles.IndentStyle.Render(val),
-	)
+	val := styles.IndentStyle.Render(toString(*m.value))
+	input := styles.Merge([]lipgloss.Style{
+		style,
+		styles.Width(
+			lipgloss.Width(m.label) + lipgloss.Width(val) + 3),
+	}).Render(lipgloss.JoinHorizontal(lipgloss.Center,
+		m.label,
+		" ",
+		val,
+	))
+
+	if state == Hover {
+		input = styles.AddHalfPixelBorder(input,
+			styles.Merge([]lipgloss.Style{
+				styles.Text(styles.White),
+				styles.Width(lipgloss.Width(input)),
+			}),
+		)
+	}
+
+	if state == Focused {
+		input = styles.AddHalfPixelBorder(input,
+			styles.Merge([]lipgloss.Style{
+				styles.Text(styles.CursorColor),
+				styles.Width(lipgloss.Width(input)),
+			}),
+		)
+	}
 
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),

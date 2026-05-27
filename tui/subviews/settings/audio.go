@@ -22,7 +22,7 @@ func (m AudioModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m AudioModel) Update(msg tea.Msg) (AudioModel, tea.Cmd) {
+func (m AudioModel) Update(msg tea.Msg, bindMode bool) (AudioModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
@@ -35,7 +35,7 @@ func (m AudioModel) Update(msg tea.Msg) (AudioModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m AudioModel) View(width, height int) string {
+func (m AudioModel) View(width, height int, bindMode bool) string {
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),
 		styles.Height(height),

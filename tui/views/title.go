@@ -81,7 +81,10 @@ func (m TitleModel) Update(msg tea.Msg) (TitleModel, tea.Cmd) {
 				return m, tea.Quit
 			}
 
+		case key.Matches(msg, m.controls.Quit):
+			return m, tea.Quit
 		}
+
 	}
 
 	return m, nil

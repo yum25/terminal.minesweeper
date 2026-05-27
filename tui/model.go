@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"terminal.minesweeper/config"
 	"terminal.minesweeper/tui/nav"
@@ -43,11 +42,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-	case tea.KeyPressMsg:
-		switch {
-		case key.Matches(msg, m.controls.Quit):
-			return m, tea.Quit
-		}
 	}
 
 	switch m.route {

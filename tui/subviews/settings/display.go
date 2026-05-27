@@ -22,7 +22,7 @@ func (m DisplayModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m DisplayModel) Update(msg tea.Msg) (DisplayModel, tea.Cmd) {
+func (m DisplayModel) Update(msg tea.Msg, bindMode bool) (DisplayModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
@@ -35,7 +35,7 @@ func (m DisplayModel) Update(msg tea.Msg) (DisplayModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m DisplayModel) View(width, height int) string {
+func (m DisplayModel) View(width, height int, bindMode bool) string {
 
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),

@@ -93,6 +93,9 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 			return m, func() tea.Msg {
 				return nav.Navigate{Route: nav.Title, Payload: nav.New}
 			}
+
+		case key.Matches(msg, m.controls.Quit):
+			return m, tea.Quit
 		}
 
 		if !m.board.IsComplete() {

@@ -95,15 +95,39 @@ func (m SelectorModel[T]) View(width, height int, state State) string {
 		styles.Width(valWidth)},
 	).Render(toString(*m.value))
 
+	arrowStyle := styles.Merge([]lipgloss.Style{
+		style,
+		styles.Width(1),
+		styles.PaddingH1,
+	})
+
+	selector := lipgloss.JoinHorizontal(lipgloss.Center,
+		arrowStyle.Render(constants.ArrowLeftSymbol),
+		option,
+		arrowStyle.Render(constants.ArrowRightSymbol),
+	)
+
+	if state == Hover {
+		selector = styles.AddHalfPixelBorder(selector,
+			styles.Merge([]lipgloss.Style{
+				styles.Text(styles.White),
+				styles.Width(lipgloss.Width(selector)),
+			}),
+		)
+	}
+
+	if state == Focused {
+		selector = styles.AddHalfPixelBorder(selector,
+			styles.Merge([]lipgloss.Style{
+				styles.Text(styles.CursorColor),
+				styles.Width(lipgloss.Width(selector)),
+			}),
+		)
+	}
+
 	return styles.Merge([]lipgloss.Style{
 		styles.Width(width),
 		styles.Height(height),
 		styles.AlignCenter,
-	}).Render(
-		lipgloss.JoinHorizontal(lipgloss.Center,
-			constants.ArrowLeftSymbol,
-			option,
-			constants.ArrowRightSymbol,
-		),
-	)
+	}).Render(selector)
 }

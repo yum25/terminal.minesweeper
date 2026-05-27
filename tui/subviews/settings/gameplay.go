@@ -21,7 +21,6 @@ const (
 )
 
 type GameplayModel struct {
-	focused bool
 	cursorX int
 	cursorY int
 
@@ -93,21 +92,14 @@ func (m GameplayModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
+func (m GameplayModel) Update(msg tea.Msg, bindMode bool) (GameplayModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		field := m.options[m.cursorY][m.cursorX]
 
-		if m.focused {
+		if bindMode {
 			update, cmd := field.Update(msg)
 			m.options[m.cursorY][m.cursorX] = update
-
-			switch {
-			case key.Matches(msg, m.controls.Select):
-				m.focused = false
-			case key.Matches(msg, m.controls.Cancel):
-				m.focused = false
-			}
 
 			// Side effects
 			switch *m.BoardType {
@@ -151,17 +143,13 @@ func (m GameplayModel) Update(msg tea.Msg) (GameplayModel, tea.Cmd) {
 			if m.cursorX < len(m.options[m.cursorY])-1 {
 				m.cursorX++
 			}
-		case key.Matches(msg, m.controls.Select):
-			m.focused = true
-		case key.Matches(msg, m.controls.Cancel):
-			m.focused = false
 		}
 	}
 
 	return m, nil
 }
 
-func (m GameplayModel) View(width, height int) string {
+func (m GameplayModel) View(width, height int, bindMode bool) string {
 	containerWidth := width / 2
 	fieldHeight := (height / len(m.options)) - 1
 
@@ -181,7 +169,7 @@ func (m GameplayModel) View(width, height int) string {
 			var state fields.State
 			if !hover {
 				state = fields.Unfocused
-			} else if hover && m.focused {
+			} else if hover && bindMode {
 				state = fields.Focused
 			} else {
 				state = fields.Hover
@@ -204,11 +192,5 @@ func (m GameplayModel) View(width, height int) string {
 		styles.AlignCenter,
 	}).Render(ui.RenderPreview(m.Board))
 
-	return styles.Merge([]lipgloss.Style{
-		styles.Width(width),
-		styles.Height(height),
-		styles.AlignCenter,
-	}).Render(
-		lipgloss.JoinHorizontal(lipgloss.Center, settings, preview),
-	)
+	return lipgloss.JoinHorizontal(lipgloss.Center, settings, preview)
 }

@@ -21,7 +21,7 @@ func (m ControlsModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m ControlsModel) Update(msg tea.Msg) (ControlsModel, tea.Cmd) {
+func (m ControlsModel) Update(msg tea.Msg, bindMode bool) (ControlsModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch {
@@ -34,6 +34,6 @@ func (m ControlsModel) Update(msg tea.Msg) (ControlsModel, tea.Cmd) {
 	return m, nil
 }
 
-func (m ControlsModel) View(width, height int) string {
+func (m ControlsModel) View(width, height int, bindMode bool) string {
 	return "controls"
 }
