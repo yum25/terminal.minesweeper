@@ -83,6 +83,10 @@ func (m SweeperModel) Update(msg tea.Msg) (SweeperModel, tea.Cmd) {
 
 		case key.Matches(msg, m.controls.Restart):
 			m.board = game.GenerateBoard(m.boardSettings)
+			m.cursor = game.Coords{
+				X: m.boardSettings.Width / 2,
+				Y: m.boardSettings.Height / 2,
+			}
 
 		case key.Matches(msg, m.controls.Menu):
 			if m.board.IsStarted() && !m.board.IsComplete() {
