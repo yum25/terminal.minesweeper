@@ -92,7 +92,8 @@ func (m SelectorModel[T]) View(width, height int, state State) string {
 	}
 	option := styles.Merge([]lipgloss.Style{
 		style,
-		styles.Width(valWidth)},
+		styles.Width(valWidth),
+	},
 	).Render(toString(*m.value))
 
 	arrowStyle := styles.Merge([]lipgloss.Style{
@@ -101,22 +102,24 @@ func (m SelectorModel[T]) View(width, height int, state State) string {
 		styles.PaddingH1,
 	})
 
-	selector := lipgloss.JoinHorizontal(lipgloss.Center,
+	selector := lipgloss.JoinHorizontal(
+		lipgloss.Center,
 		arrowStyle.Render(constants.ArrowLeftSymbol),
 		option,
 		arrowStyle.Render(constants.ArrowRightSymbol),
 	)
 
-	if state == Hover {
+	switch state {
+	case Unfocused:
+		selector = styles.PaddingV1.Render(selector)
+	case Hover:
 		selector = styles.AddHalfPixelBorder(selector,
 			styles.Merge([]lipgloss.Style{
 				styles.Text(styles.White),
 				styles.Width(lipgloss.Width(selector)),
 			}),
 		)
-	}
-
-	if state == Focused {
+	case Focused:
 		selector = styles.AddHalfPixelBorder(selector,
 			styles.Merge([]lipgloss.Style{
 				styles.Text(styles.CursorColor),
@@ -126,8 +129,7 @@ func (m SelectorModel[T]) View(width, height int, state State) string {
 	}
 
 	return styles.Merge([]lipgloss.Style{
-		styles.Width(width),
-		styles.Height(height),
 		styles.AlignCenter,
+		styles.PaddingH1,
 	}).Render(selector)
 }

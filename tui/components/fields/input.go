@@ -8,15 +8,15 @@ import (
 	"terminal.minesweeper/tui/styles"
 )
 
-type InputModel[T comparable] struct {
+type InputModel[T any] struct {
 	name     string
+	buffer   T
 	value    *T
-	prev     T
 	label    string
 	controls *config.UserControlsMap
 }
 
-func MakeInputModel[T comparable](
+func MakeInputModel[T any](
 	name string,
 	value *T,
 	label string,
@@ -24,7 +24,6 @@ func MakeInputModel[T comparable](
 	return InputModel[T]{
 		name:     name,
 		value:    value,
-		prev:     *value,
 		label:    label,
 		controls: controls,
 	}
@@ -44,13 +43,16 @@ func (m InputModel[T]) Update(msg tea.Msg) (Field, tea.Cmd) {
 	case tea.KeyPressMsg:
 		switch {
 		case msg.String() == "backspace":
-			*m.value = truncate(*m.value)
+			m.buffer = truncate(m.buffer)
 		case key.Matches(msg, m.controls.Select):
-			m.prev = *m.value
+			*m.value = m.buffer
+			var clear T
+			m.buffer = clear
 		case key.Matches(msg, m.controls.Cancel):
-			*m.value = m.prev
+			var clear T
+			m.buffer = clear
 		default:
-			*m.value = appendTo(*m.value, msg.String())
+			m.buffer = appendTo(m.buffer, msg.String())
 		}
 	}
 
@@ -61,17 +63,21 @@ func (m InputModel[T]) View(width, height int, state State) string {
 	// TODO: Refactor UI logic into a single card interface that uses same
 	// logic as subview setting cards
 	var style lipgloss.Style
+	var text T
 
 	switch state {
 	case Unfocused:
 		style = styles.OptionStyle
+		text = *m.value
 	case Hover:
 		style = styles.HoveredOptionStyle
+		text = *m.value
 	case Focused:
 		style = styles.SelectedOptionStyle
+		text = m.buffer
 	}
 
-	val := styles.IndentStyle.Render(toString(*m.value))
+	val := styles.IndentStyle.Render(toString(text))
 	input := styles.Merge([]lipgloss.Style{
 		style,
 		styles.Width(
@@ -82,16 +88,17 @@ func (m InputModel[T]) View(width, height int, state State) string {
 		val,
 	))
 
-	if state == Hover {
+	switch state {
+	case Unfocused:
+		input = styles.PaddingV1.Render(input)
+	case Hover:
 		input = styles.AddHalfPixelBorder(input,
 			styles.Merge([]lipgloss.Style{
 				styles.Text(styles.White),
 				styles.Width(lipgloss.Width(input)),
 			}),
 		)
-	}
-
-	if state == Focused {
+	case Focused:
 		input = styles.AddHalfPixelBorder(input,
 			styles.Merge([]lipgloss.Style{
 				styles.Text(styles.CursorColor),
@@ -101,8 +108,7 @@ func (m InputModel[T]) View(width, height int, state State) string {
 	}
 
 	return styles.Merge([]lipgloss.Style{
-		styles.Width(width),
-		styles.Height(height),
 		styles.AlignCenter,
+		styles.PaddingH1,
 	}).Render(input)
 }
