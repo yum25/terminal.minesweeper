@@ -63,7 +63,7 @@ func MakeSettingsModel(currentConfig *config.Config) SettingsModel {
 			&localConfig.UserControls,
 		),
 		ControlsView: settings.MakeControlsModel(
-			&localConfig.GameControls,
+			&localConfig,
 		),
 	}
 }
@@ -143,6 +143,10 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 			}
 
 			return m, tea.Quit
+		case msg.String() == "ctrl+s":
+			// TODO: add dialog box for confirmation/cancellation
+			*m.currentConfig = *m.localConfig
+			m.currentConfig.SaveConfig()
 		default:
 			m.UpdateSubview(msg)
 		}
@@ -205,8 +209,10 @@ func (m SettingsModel) View(width, height int) string {
 		m.RenderOption(exit),
 	)
 
-	containerWidth := min(width-6, 100)
-	containerHeight := min(height, 25)
+	containerWidth := min(width-6, 80)
+	containerHeight := min(
+		height-lipgloss.Height(list)-lipgloss.Height(footer),
+		20)
 
 	container := styles.Merge([]lipgloss.Style{
 		styles.BorderStyle,
