@@ -160,10 +160,10 @@ func (m SweeperModel) RenderHeader(width int) string {
 	var hearts strings.Builder
 	livesLeft := m.board.GetLivesLeft()
 	for i := range m.board.GetLivesCount() {
-		if livesLeft > 0 && livesLeft-1 <= i {
-			hearts.WriteString(constants.HeartSymbol)
-		} else {
+		if livesLeft <= i {
 			hearts.WriteString(constants.HeartLostSymbol)
+		} else {
+			hearts.WriteString(constants.HeartSymbol)
 		}
 	}
 
