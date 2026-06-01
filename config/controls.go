@@ -100,7 +100,18 @@ func (c *Controls) ToKeyMap() (UserControlsMap, GameControlsMap) {
 }
 
 func (c Config) FromKeyMap() Controls {
-	return Controls{}
+	return Controls{
+		Up:      c.UserControls.Up.Keys(),
+		Down:    c.UserControls.Down.Keys(),
+		Left:    c.UserControls.Left.Keys(),
+		Right:   c.UserControls.Right.Keys(),
+		Select:  c.UserControls.Select.Keys(),
+		Cancel:  c.UserControls.Cancel.Keys(),
+		Quit:    c.UserControls.Quit.Keys(),
+		Flag:    c.GameControls.Flag.Keys(),
+		Menu:    c.GameControls.Menu.Keys(),
+		Restart: c.GameControls.Restart.Keys(),
+	}
 }
 
 var DEFAULT_CONTROLS = Controls{
