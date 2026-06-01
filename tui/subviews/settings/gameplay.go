@@ -151,11 +151,11 @@ func (m GameplayModel) Update(msg tea.Msg, bindMode bool) (GameplayModel, tea.Cm
 
 func (m GameplayModel) View(width, height int, bindMode bool) string {
 	containerWidth := width / 2
-	fieldHeight := (height / len(m.options)) - 1
+	fieldHeight := (height / len(m.options))
 
 	view := make([]string, len(m.options))
 	for y, row := range m.options {
-		fieldWidth := (containerWidth / len(row)) - 1
+		fieldWidth := (containerWidth / len(row))
 		rowView := make([]string, len(row))
 
 		for x, field := range row {
@@ -175,9 +175,12 @@ func (m GameplayModel) View(width, height int, bindMode bool) string {
 				state = fields.Hover
 			}
 
-			rowView = append(rowView, field.View(fieldWidth, fieldHeight, state))
+			rowView[x] = styles.Merge([]lipgloss.Style{
+				styles.Width(fieldWidth),
+				styles.AlignCenter,
+			}).Render(field.View(fieldWidth, fieldHeight, state))
 		}
-		view = append(view, lipgloss.JoinHorizontal(lipgloss.Center, rowView...))
+		view[y] = lipgloss.JoinHorizontal(lipgloss.Center, rowView...)
 	}
 
 	settings := styles.Merge([]lipgloss.Style{
